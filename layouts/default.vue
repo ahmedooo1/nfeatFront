@@ -10,6 +10,11 @@
   </div>
 </template>
 
+<!-- Ajout de la balise meta charset UTF-8 -->
+<nuxt-head>
+  <meta charset="utf-8">
+</nuxt-head>
+
 <script>
 import Header from '~/components/Header.vue'
 import Footer from '~/components/Footer.vue'
