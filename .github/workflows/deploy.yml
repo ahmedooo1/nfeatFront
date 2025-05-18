@@ -33,6 +33,7 @@ jobs:
         host: ${{ secrets.SERVER_IP }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.API_SSH_PORT }}
         script: |
           cd /var/www/nuxt-app
           git pull origin main
