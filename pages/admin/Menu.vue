@@ -245,4 +245,4 @@ export default {
 .container {
   max-width: 800px;
 }
-</style>
+</style> 
