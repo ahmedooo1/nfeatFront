@@ -36,7 +36,9 @@
           </div>
           <div class="mb-4">
             <label class="block text-gray-700">Prix</label>
-            <input v-model="currentItem.price" type="number" class="w-full px-4 py-2 border rounded" />
+            <input v-model="currentItem.price" type="text" pattern="[0-9]+([\.,][0-9]+)?" class="w-full px-4 py-2 border rounded" 
+              placeholder="ex: 7,50 ou 7.50" 
+              @input="validatePrice($event)" />
           </div>
           <div class="mb-4">
             <label class="block text-gray-700">Image</label>
@@ -129,6 +131,9 @@ export default {
     },
     async submitFormData(formData) {
       try {
+        // Formater le prix avant l'envoi
+        formData.price = this.formatPrice(formData.price);
+        
         await this.$axios.post('/menu', formData, {
           headers: {
             'Content-Type': 'application/json'
@@ -141,16 +146,11 @@ export default {
       }
     },
     async updateMenuItem() {
-      if (!this.selectedFile && !this.currentItem.image_url) {
-        this.error = 'Veuillez sélectionner une image.';
-        return;
-      }
-
-      const formData = {
+      // Prepare formData without image_url by default
+      let formData = {
         name: this.currentItem.name,
         description: this.currentItem.description,
         price: this.currentItem.price,
-        image_url: this.currentItem.image_url, // Conserver l'URL de l'image existante
         category_id: this.currentItem.category_id
       };
 
@@ -162,11 +162,15 @@ export default {
         };
         reader.readAsDataURL(this.selectedFile);
       } else {
+        // Do not include image_url if no new image is selected
         this.submitUpdateFormData(formData);
       }
     },
     async submitUpdateFormData(formData) {
       try {
+        // Formater le prix avant l'envoi
+        formData.price = this.formatPrice(formData.price);
+        
         await this.$axios.put(`/menu/${this.currentItem.id}`, formData, {
           headers: {
             'Content-Type': 'application/json'
@@ -187,7 +191,7 @@ export default {
       }
     },
     editItem(item) {
-      this.currentItem = { ...item, category_id: item.category.id };
+      this.currentItem = { ...item, category_id: item.category.id, image_url: item.image_url || '' };
       this.showEditModal = true;
       this.error = ''; // Réinitialiser le message d'erreur
     },
@@ -210,6 +214,28 @@ export default {
     },
     getImageUrl(imagePath) {
       return `https://apinfeat.aa-world.store${imagePath}`;
+    },
+    validatePrice(event) {
+      // Ne pas modifier la saisie de l'utilisateur directement pour une meilleure expérience
+      // Les deux formats (virgule ou point) sont acceptés grâce au pattern HTML
+      
+      // Vérifie si la valeur est valide
+      const regex = /^[0-9]+([\.,][0-9]{0,2})?$/;
+      if (!regex.test(event.target.value) && event.target.value !== '') {
+        // Si la valeur n'est pas valide, afficher une erreur
+        this.error = 'Format de prix invalide. Utilisez le format 7,50 ou 7.50';
+      } else {
+        // Si valide, effacer le message d'erreur
+        this.error = '';
+      }
+    },
+    // Pour la soumission, s'assurer que le format est correct
+    formatPrice(price) {
+      // Convertir la virgule en point pour le traitement JavaScript
+      if (typeof price === 'string') {
+        return price.replace(',', '.');
+      }
+      return price;
     }
   }
 }
