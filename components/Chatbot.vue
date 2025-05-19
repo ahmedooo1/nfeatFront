@@ -47,7 +47,9 @@
           placeholder="Ou écrivez votre question..."
           type="text"
         >
-        <button @click="sendMessage">Envoyer</button>
+        <button @click="sendMessage" aria-label="Envoyer">
+          <i class="send-icon">&#10147;</i>
+        </button>
       </div>
     </div>
   </div>
@@ -697,14 +699,24 @@ export default {
   background-color: #eab308;
   color: white;
   border: none;
-  padding: 8px 15px;
-  border-radius: 20px;
+  width: 40px; /* Taille fixe pour le bouton rond */
+  height: 40px; /* Taille fixe pour le bouton rond */
+  border-radius: 50%; /* Rend le bouton rond */
   cursor: pointer;
   transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .chat-input button:hover {
   background-color: #d97706;
+  transform: scale(1.05);
+}
+
+.send-icon {
+  font-style: normal;
+  font-size: 20px;
 }
 
 /* Liens dans les messages */
