@@ -196,7 +196,13 @@ export default {
       this.currentItem = { ...item, category_id: item.category.id };
       this.showEditModal = true;
 <<<<<<< HEAD
+<<<<<<< HEAD
       this.error = ''; // RÈinitialiser le message d'erreur
+=======
+      this.error = '';
+      // Afficher l'aper√ßu de l'image existante lors de la modification
+      this.imagePreview = item.image_url ? this.getImageUrl(item.image_url) : null;
+>>>>>>> 055bf27d8ef4be20d36dae596610769427fcedc8
 =======
       this.error = '';
       // Afficher l'aper√ßu de l'image existante lors de la modification
@@ -216,7 +222,12 @@ export default {
       };
       this.selectedFile = null;
 <<<<<<< HEAD
+<<<<<<< HEAD
       this.error = ''; // RÈinitialiser le message d'erreur
+=======
+      this.error = '';
+      this.imagePreview = null;
+>>>>>>> 055bf27d8ef4be20d36dae596610769427fcedc8
 =======
       this.error = '';
       this.imagePreview = null;
