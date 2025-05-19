@@ -1,0 +1,216 @@
+/* Styles personnalisés pour le widget de chat */
+.sc-user-input {
+  min-height: 55px;
+  margin: 0px;
+  position: relative;
+  bottom: 0;
+  display: flex;
+  background-color: #f4f7f9;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sc-user-input--text {
+  width: 300px;
+  resize: none;
+  border: none;
+  outline: none;
+  border-bottom-left-radius: 10px;
+  box-sizing: border-box;
+  padding: 18px;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.33;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: #565867;
+  background-color: #f4f7f9;
+  overflow: scroll;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.sc-user-input--buttons {
+  width: 100px;
+  position: absolute;
+  right: 10px;
+  height: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sc-user-input--button {
+  width: 30px;
+  height: 55px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.sc-user-input--button:hover {
+  cursor: pointer;
+}
+
+.sc-user-input--button button {
+  cursor: pointer;
+}
+
+.sc-user-input--buttons input[type="file"] {
+  display: none;
+}
+
+.sc-user-input--picker-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.sc-launcher {
+  width: 60px;
+  height: 60px;
+  background-color: #eab308;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: fixed;
+  right: 25px;
+  bottom: 25px;
+  border-radius: 50%;
+  box-shadow: none;
+  transition: box-shadow 0.2s ease-in-out;
+  cursor: pointer;
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sc-launcher:before {
+  content: '';
+  position: relative;
+  display: block;
+  width: 60px;
+  height: 60px;  
+  border-radius: 50%;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.sc-launcher .sc-open-icon,
+.sc-launcher .sc-closed-icon {
+  width: 60px;
+  height: 60px;
+  position: fixed;
+  right: 25px;
+  bottom: 25px;
+  border-radius: 50%;
+  background-color: #eab308;
+  transition: opacity 100ms ease-in-out, transform 100ms ease-in-out;
+}
+
+.sc-launcher .sc-closed-icon {
+  transition: opacity 100ms ease-in-out, transform 100ms ease-in-out;
+  width: 60px;
+  height: 60px;
+  background-image: url("https://img.icons8.com/material-rounded/96/FFFFFF/chat--v1.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 32px 32px;
+}
+
+.sc-launcher .sc-open-icon {
+  padding: 20px;
+  background-image: url("https://img.icons8.com/material-rounded/96/FFFFFF/delete-sign.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 28px 28px;
+}
+
+.sc-launcher.opened .sc-open-icon {
+  transform: rotate(-90deg);
+  opacity: 1;
+}
+
+.sc-launcher.opened .sc-closed-icon {
+  transform: rotate(-90deg);
+  opacity: 0;
+}
+
+.sc-launcher.opened:before {
+  box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.3);
+}
+
+.sc-launcher.opened {
+  box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.3);
+}
+
+.sc-new-messages-count {
+  position: absolute;
+  top: -3px;
+  left: 41px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  background-color: red;
+  color: white;
+  text-align: center;
+  margin: auto;
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: -1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.sc-chat-window {
+  width: 370px;
+  height: calc(100% - 120px);
+  max-height: 590px;
+  position: fixed;
+  right: 25px;
+  bottom: 100px;
+  box-sizing: border-box;
+  box-shadow: 0px 7px 40px 2px rgba(0, 0, 0, 0.3);
+  background: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: 0.3s ease-in-out;
+  border-radius: 10px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  z-index: 998;
+}
+
+.sc-message--content {
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  position: relative;
+}
+
+.sc-message--content.sent {
+  background-color: #eab308;
+  color: white;
+}
+
+.sc-message--content.received {
+  background-color: #e2e8f0;
+  color: #1f2937;
+}
+
+.sc-header {
+  background-color: #1f2937;
+  min-height: 75px;
+  border-top-left-radius: 9px;
+  border-top-right-radius: 9px;
+  color: white;
+  padding: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}

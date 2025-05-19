@@ -39,8 +39,8 @@ export default {
   // Plugins to run before rendering page
   plugins: [
     '~/plugins/toastification.js',
-    '~/plugins/socket.js'
-
+    '~/plugins/socket.js',
+    '~/plugins/chat.js'
   ],
 
   // Auto import components
