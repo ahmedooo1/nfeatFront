@@ -220,7 +220,7 @@ export default {
                 response = `${this.getCategoryEmoji(category.title)} ${category.title}:\n` + 
                   items.map(item => `• ${item.name} (${item.price} €)`).join('\n');
                 
-                if (items.length > 5) {
+                if (items.length > 5) { // Si plus de 5 items, ajouter un lien vers le menu
                   // Si beaucoup d'items, ajouter un lien vers la page complète
                   isHtml = true;
                   response += `\n\nVoir <a href="/menus" class="chat-link">tous nos ${category.title}</a>.`;
