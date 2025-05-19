@@ -42,6 +42,7 @@
           </div>
           <div class="mb-4">
             <label class="block text-gray-700">Image</label>
+            <img v-if="imagePreview" :src="imagePreview" alt="AperÃ§u" class="mt-2 w-24 h-24 object-cover rounded" />
             <input @change="onFileChange" type="file" class="w-full px-4 py-2 border rounded" />
           </div>
           <div class="mb-4">
@@ -78,7 +79,8 @@ export default {
         category_id: null
       },
       selectedFile: null,
-      error: ''
+      error: '',
+      imagePreview: null
     }
   },
   async mounted() {
@@ -191,9 +193,15 @@ export default {
       }
     },
     editItem(item) {
-      this.currentItem = { ...item, category_id: item.category.id, image_url: item.image_url || '' };
+      this.currentItem = { ...item, category_id: item.category.id };
       this.showEditModal = true;
+<<<<<<< HEAD
       this.error = ''; // Réinitialiser le message d'erreur
+=======
+      this.error = '';
+      // Afficher l'aperÃ§u de l'image existante lors de la modification
+      this.imagePreview = item.image_url ? this.getImageUrl(item.image_url) : null;
+>>>>>>> 055bf27d8ef4be20d36dae596610769427fcedc8
     },
     closeModal() {
       this.showAddModal = false;
@@ -207,10 +215,24 @@ export default {
         category_id: null
       };
       this.selectedFile = null;
+<<<<<<< HEAD
       this.error = ''; // Réinitialiser le message d'erreur
+=======
+      this.error = '';
+      this.imagePreview = null;
+>>>>>>> 055bf27d8ef4be20d36dae596610769427fcedc8
     },
     onFileChange(event) {
       this.selectedFile = event.target.files[0];
+      if (this.selectedFile) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          this.imagePreview = e.target.result;
+        };
+        reader.readAsDataURL(this.selectedFile);
+      } else {
+        this.imagePreview = null;
+      }
     },
     getImageUrl(imagePath) {
       return `https://apinfeat.aa-world.store${imagePath}`;
