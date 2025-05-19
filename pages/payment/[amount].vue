@@ -109,7 +109,37 @@ export default {
         this.processing = false;
       } else if (paymentIntent.status === 'succeeded') {
         try {
-          await this.$axios.post('/orders', { userId: this.$auth.user.id });
+          // Stockage des données pour le reçu PDF
+          const cartResponse = await this.$axios.get(`/carts?userId=${this.$auth.user.id}`);
+          const orderItems = cartResponse.data;
+          
+          // Calculer les totaux pour la commande
+          const totalPriceWithTva = this.totalAmountWithTva;
+          const tvaRate = 0.20; // 20% TVA
+          const totalPrice = totalPriceWithTva / (1 + tvaRate);
+          const tvaAmount = totalPriceWithTva - totalPrice;
+          
+          // Préparer les données de la commande
+          const orderData = {
+            totalPriceWithTva,
+            totalPrice,
+            tvaAmount,
+            tvaRate
+          };
+          
+          // Sauvegarder dans localStorage pour le reçu PDF
+          localStorage.setItem('lastOrderData', JSON.stringify(orderData));
+          localStorage.setItem('lastOrderItems', JSON.stringify(orderItems));
+          localStorage.setItem('lastPaymentId', paymentIntent.id);
+          
+          // Corriger l'URL en ajoutant /api/ dans le chemin
+          await this.$axios.post('/orders', { 
+            userId: this.$auth.user.id,
+            paymentId: paymentIntent.id,
+            amount: this.totalAmountWithTva,
+            items: orderItems
+          });
+          
           await this.emptyCart();
           this.$router.push('/order-success');
         } catch (error) {

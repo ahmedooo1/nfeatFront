@@ -49,6 +49,15 @@ export default {
         this.processing = false;
       } else if (paymentIntent.status === 'succeeded') {
         // Handle successful payment here
+        // Enregistrer les détails de la commande dans localStorage
+        localStorage.setItem('lastOrderData', JSON.stringify(this.orderData));
+        localStorage.setItem('lastOrderItems', JSON.stringify(this.orderItems));
+        localStorage.setItem('lastPaymentId', paymentIntent.id);
+        
+        // Enregistrer la commande en base de données
+        await this.saveOrder(paymentIntent.id);
+        
+        // Rediriger vers la page de succès
         this.$router.push('/order-success');
       }
     }
