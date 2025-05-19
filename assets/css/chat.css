@@ -124,7 +124,7 @@
   background-size: 28px 28px;
 }
 
-.sc-launcher.opened .sc-open-icon {
+.sc-launcher.opened .sc-open-icon { 
   transform: rotate(-90deg);
   opacity: 1;
 }
