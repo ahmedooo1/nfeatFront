@@ -1,17 +1,17 @@
 <template>
   <div class="container mx-auto p-4" v-if="$auth.loggedIn && $auth.user.roles.includes('ROLE_ADMIN')">
     <h1 class="text-3xl font-bold mb-4 text-white">Gestion du Menu Admin</h1>
-    <button @click="showAddModal = true" class="bg-blue-500 text-white px-4 py-2 rounded mb-4">Ajouter un √âl√©ment de Menu</button>
-    <div v-if="menuItems.length === 0">Aucun √©l√©ment de menu disponible.</div>
+    <button @click="showAddModal = true" class="bg-blue-500 text-white px-4 py-2 rounded mb-4">Ajouter un …lÈment de Menu</button>
+    <div v-if="menuItems.length === 0">Aucun ÈlÈment de menu disponible.</div>
     <div v-for="item in menuItems" :key="item.id" class="bg-white shadow-md rounded-lg p-4 mb-4">
       <div class="flex justify-between items-center sm:flex-row flex-col">
         <div class="">
-          <img :src="getImageUrl(item.image_url)" alt="Image de l'√©l√©ment de menu" class="w-32 h-32 object-cover rounded">
+          <img :src="getImageUrl(item.image_url)" alt="Image de l'ÈlÈment de menu" class="w-32 h-32 object-cover rounded">
         </div>
         <div class="flex-grow ml-4">
           <h2 class="text-2xl font-semibold">{{ item.name }}</h2>
           <p>{{ item.description }}</p>
-          <p class="text-lg font-bold">{{ item.price }} ‚Ç¨</p>
+          <p class="text-lg font-bold">{{ item.price }} Ä</p>
           <p class="text-md">{{ item.category.title }}</p>
         </div>
         <div class="w-64 flex items-center justify-center">
@@ -24,7 +24,7 @@
     <!-- Modal Ajouter/Modifier -->
     <div v-if="showAddModal || showEditModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
       <div class="bg-white p-6 rounded shadow-lg w-96">
-        <h2 class="text-2xl font-bold mb-4">{{ showEditModal ? 'Modifier l\'√âl√©ment de Menu' : 'Ajouter un √âl√©ment de Menu' }}</h2>
+        <h2 class="text-2xl font-bold mb-4">{{ showEditModal ? 'Modifier l\'…lÈment de Menu' : 'Ajouter un …lÈment de Menu' }}</h2>
         <form @submit.prevent="showEditModal ? updateMenuItem() : createMenuItem()">
           <div class="mb-4">
             <label class="block text-gray-700">Nom</label>
@@ -45,7 +45,7 @@
             <input @change="onFileChange" type="file" class="w-full px-4 py-2 border rounded" />
           </div>
           <div class="mb-4">
-            <label class="block text-gray-700">Cat√©gorie</label>
+            <label class="block text-gray-700">CatÈgorie</label>
             <select v-model="currentItem.category_id" class="w-full px-4 py-2 border rounded">
               <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.title }}</option>
             </select>
@@ -53,7 +53,7 @@
           <div v-if="error" class="mb-4 text-red-500">{{ error }}</div>
           <div class="flex justify-end">
             <button type="button" @click="closeModal" class="bg-gray-500 text-white px-4 py-2 rounded mr-2">Annuler</button>
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">{{ showEditModal ? 'Mettre √† Jour' : 'Ajouter' }}</button>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">{{ showEditModal ? 'Mettre ‡ Jour' : 'Ajouter' }}</button>
           </div>
         </form>
       </div>
@@ -110,7 +110,7 @@ export default {
     },
     async createMenuItem() {
       if (!this.selectedFile) {
-        this.error = 'Veuillez s√©lectionner une image.';
+        this.error = 'Veuillez sÈlectionner une image.';
         return;
       }
 
@@ -193,7 +193,7 @@ export default {
     editItem(item) {
       this.currentItem = { ...item, category_id: item.category.id, image_url: item.image_url || '' };
       this.showEditModal = true;
-      this.error = ''; // R√©initialiser le message d'erreur
+      this.error = ''; // RÈinitialiser le message d'erreur
     },
     closeModal() {
       this.showAddModal = false;
@@ -207,7 +207,7 @@ export default {
         category_id: null
       };
       this.selectedFile = null;
-      this.error = ''; // R√©initialiser le message d'erreur
+      this.error = ''; // RÈinitialiser le message d'erreur
     },
     onFileChange(event) {
       this.selectedFile = event.target.files[0];
@@ -216,10 +216,10 @@ export default {
       return `https://apinfeat.aa-world.store${imagePath}`;
     },
     validatePrice(event) {
-      // Ne pas modifier la saisie de l'utilisateur directement pour une meilleure exp√©rience
-      // Les deux formats (virgule ou point) sont accept√©s gr√¢ce au pattern HTML
+      // Ne pas modifier la saisie de l'utilisateur directement pour une meilleure expÈrience
+      // Les deux formats (virgule ou point) sont acceptÈs gr‚ce au pattern HTML
       
-      // V√©rifie si la valeur est valide
+      // VÈrifie si la valeur est valide
       const regex = /^[0-9]+([\.,][0-9]{0,2})?$/;
       if (!regex.test(event.target.value) && event.target.value !== '') {
         // Si la valeur n'est pas valide, afficher une erreur
@@ -245,4 +245,4 @@ export default {
 .container {
   max-width: 800px;
 }
-</style> 
+</style>
