@@ -15,19 +15,38 @@
         </button>
       </div>
     </div>
-    <div v-if="cartItems.length > 0" class="text-gray-800 text-xl font-bold mb-4">
-      Prix total : {{ totalPrice }} €
+    <div v-if="cartItems.length > 0" class="bg-white rounded-lg shadow-lg p-6 mt-6">
+      <h3 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Récapitulatif de commande</h3>
+      
+      <div class="space-y-3 mb-4">
+      <div class="flex justify-between items-center">
+        <span class="text-gray-600">Total HT:</span>
+        <span class="text-gray-800 font-medium">{{ totalPrice.toFixed(2) }} €</span>
+      </div>
+      
+      <div class="flex justify-between items-center">
+        <span class="text-gray-600">TVA ({{ tvaRate * 100 }}%):</span>
+        <span class="text-gray-800 font-medium">{{ tvaAmount.toFixed(2) }} €</span>
+      </div>
+      
+      <div class="flex justify-between items-center pt-2 border-t">
+        <span class="text-lg font-bold text-gray-800">Total TTC:</span>
+        <span class="text-lg font-bold text-gray-800">{{ totalPriceWithTva.toFixed(2) }} €</span>
+      </div>
+      </div>
+      
+      <div class="flex flex-col sm:flex-row gap-3 mt-5">
+      <button @click="emptyCart" :disabled="emptyingCart" 
+          class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition-colors">
+        {{ emptyingCart ? 'En cours...' : 'Vider le panier' }}
+      </button>
+      <button @click="placeOrder" 
+          class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded flex-grow flex items-center justify-center transition-colors">
+        <span>Passer la commande</span>
+        <img class="ml-2" width="24" height="24" src="https://img.icons8.com/ios/50/FFFFFF/credit-card-front.png" alt="credit-card-front"/>
+      </button>
+      </div>
     </div>
-    <div v-if="cartItems.length > 0" class="text-gray-800 text-xl font-bold mb-4">
-      TVA ({{ tvaRate * 100 }}%) : {{ tvaAmount.toFixed(2) }} €
-    </div>
-    <div v-if="cartItems.length > 0" class="text-gray-800 text-xl font-bold mb-4">
-      Total avec TVA : {{ totalPriceWithTva.toFixed(2) }} €
-    </div>
-    <button @click="emptyCart" :disabled="emptyingCart" class="bg-red-500 text-white px-4 py-2 rounded mt-4">
-      {{ emptyingCart ? 'En cours...' : 'Vider le panier' }}
-    </button>
-    <button @click="placeOrder" class="bg-blue-500 text-white px-4 py-2 rounded mt-4 flex">Passer la commande <img class="ml-3" width="30" height="30" src="https://img.icons8.com/ios/50/FFFFFF/credit-card-front.png" alt="credit-card-front"/></button>
   </div>
 </template>
 
@@ -44,14 +63,17 @@ export default {
     await this.fetchCartItems();
   },
   computed: {
-    totalPrice() {
+    totalPriceWithTva() {
+      // Montant total TTC directement à partir des prix affichés (qui incluent déjà la TVA)
       return this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
     },
-    tvaAmount() {
-      return this.totalPrice * this.tvaRate;
+    totalPrice() {
+      // Calcul du montant HT à partir du TTC
+      return this.totalPriceWithTva / (1 + this.tvaRate);
     },
-    totalPriceWithTva() {
-      return this.totalPrice + this.tvaAmount;
+    tvaAmount() {
+      // Calcul de la TVA comme différence entre TTC et HT
+      return this.totalPriceWithTva - this.totalPrice;
     }
   },
   methods: {

@@ -63,7 +63,7 @@ export default {
           picture: this.picture || undefined
         }
         const response = await this.$axios.post('/user/edit', payload)
-        console.log('Profile updated successfully:', response.data)
+        this.$toast.success('Profile updated successfully')
         await this.fetchUserProfile(); // Refresh profile data
       } catch (error) {
         console.error('Profile update failed:', error)
