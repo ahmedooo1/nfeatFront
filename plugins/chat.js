@@ -9,4 +9,4 @@ Vue.component('beautiful-chat', Chat)
 
 export default () => {
   // Plugin vide car l'import et l'enregistrement du composant sont faits ci-dessus
-}
+} 
