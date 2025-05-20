@@ -40,7 +40,7 @@
       </div>
       
       <!-- Zone de saisie -->
-      <div class="chat-input">
+      <!-- <div class="chat-input">
         <input 
           v-model="newMessage" 
           @keyup.enter="sendMessage"
@@ -50,7 +50,7 @@
         <button @click="sendMessage" aria-label="Envoyer">
           <i class="send-icon">&#10147;</i>
         </button>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
