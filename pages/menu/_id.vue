@@ -1,7 +1,9 @@
 <template>
   <div class="container mx-auto p-4 sm:w-1/2">
-    <div class="bg-white rounded-lg shadow-md p-4 cursor-pointer" @click="$router.push(`/menu/${menuItem.id}`)">
-      <img :src="getImageUrl(menuItem.image_url)" alt="Image de l'article du menu" class=" w-72 object-cover rounded-t-lg bg-contain mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-4">
+      <div class="w-full max-w-md mx-auto mb-4">
+        <img :src="getImageUrl(menuItem.image_url)" alt="Image de l'article du menu" class="w-full h-64 object-cover rounded-lg shadow">
+      </div>
       <div class="p-4">
         <h1 class="text-3xl font-bold mb-4">{{ menuItem.name }}</h1>
         <p class="mb-4">{{ menuItem.description }}</p>
@@ -52,7 +54,7 @@ export default {
           quantity: 1
         };
         await this.$axios.post('/carts', payload);
-        alert('Item added to cart');
+        this.$toast.success('Article ajouté au panier');
       } catch (error) {
         console.error('Failed to add item to cart', error);
       }

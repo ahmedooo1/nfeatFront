@@ -5,8 +5,8 @@
     <div v-if="menuItems.length === 0">Aucun élément de menu disponible.</div>
     <div v-for="item in menuItems" :key="item.id" class="bg-white shadow-md rounded-lg p-4 mb-4">
       <div class="flex justify-between items-center sm:flex-row flex-col">
-        <div class="">
-          <img :src="getImageUrl(item.image_url)" alt="Image de l'élément de menu" class="w-32 h-32 object-cover rounded">
+        <div class="flex-shrink-0">
+          <img :src="getImageUrl(item.image_url)" alt="Image de l'élément de menu" class="w-32 h-32 object-cover rounded-md shadow-sm">
         </div>
         <div class="flex-grow ml-4">
           <h2 class="text-2xl font-semibold">{{ item.name }}</h2>
@@ -23,7 +23,7 @@
 
     <!-- Modal Ajouter/Modifier -->
     <div v-if="showAddModal || showEditModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-      <div class="bg-white p-6 rounded shadow-lg w-96">
+      <div class="bg-white p-6 rounded shadow-lg w-full max-w-xl mx-4">
         <h2 class="text-2xl font-bold mb-4">{{ showEditModal ? 'Modifier l\'Élément de Menu' : 'Ajouter un Élément de Menu' }}</h2>
         <form @submit.prevent="showEditModal ? updateMenuItem() : createMenuItem()">
           <div class="mb-4">
@@ -32,7 +32,7 @@
           </div>
           <div class="mb-4">
             <label class="block text-gray-700">Description</label>
-            <input v-model="currentItem.description" type="text" class="w-full px-4 py-2 border rounded" />
+            <textarea v-model="currentItem.description" class="w-full px-4 py-2 border rounded" rows="4"></textarea>
           </div>
           <div class="mb-4">
             <label class="block text-gray-700">Prix</label>
@@ -42,8 +42,8 @@
           </div>
           <div class="mb-4">
             <label class="block text-gray-700">Image</label>
-            <img v-if="imagePreview" :src="imagePreview" alt="Aperçu" class="mt-2 w-24 h-24 object-cover rounded" />
-            <input @change="onFileChange" type="file" class="w-full px-4 py-2 border rounded" />
+            <img v-if="imagePreview" :src="imagePreview" alt="Aperçu" class="mt-2 w-full h-48 object-cover rounded" />
+            <input @change="onFileChange" type="file" accept="image/*" class="w-full px-4 py-2 border rounded mt-2" />
           </div>
           <div class="mb-4">
             <label class="block text-gray-700">Catégorie</label>
