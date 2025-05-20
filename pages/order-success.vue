@@ -83,19 +83,34 @@ export default {
       this.isGeneratingPdf = true;
       
       try {
+        // S'assurer que les champs sont des chaînes non-undefined
+        let name = '';
+        if (this.$auth.user) {
+          const firstname = this.$auth.user.firstname || '';
+          const lastname = this.$auth.user.lastname || '';
+          // Ne pas concaténer si les deux champs sont vides
+          if (firstname || lastname) {
+            name = (firstname + ' ' + lastname).trim();
+          }
+        }
+        
+        // Construction des données utilisateur avec des valeurs sûres
         const userData = {
-          name: this.$auth.user ? (this.$auth.user.firstname + ' ' + this.$auth.user.lastname) : 'Client',
-          email: this.$auth.user ? this.$auth.user.email : 'Non spécifié',
-          phone: this.$auth.user && this.$auth.user.phone ? this.$auth.user.phone : 'Non spécifié',
-          address: this.$auth.user && this.$auth.user.address ? this.$auth.user.address : 'Non spécifiée'
+          name: name || 'Client', // Valeur par défaut si name est vide
+          email: this.$auth.user?.email || '',
+          phone: this.$auth.user?.phone || '',
+          address: this.$auth.user?.address || ''
         };
         
-        // Appel asynchrone à la méthode generateReceipt
+        console.log('User data for receipt:', userData); // Debug
+        
+        // Appel asynchrone à la méthode generateReceipt en passant l'instance $axios
         const pdfDoc = await receiptService.generateReceipt(
           this.orderData,
           this.orderItems,
           userData,
-          this.paymentId
+          this.paymentId,
+          this.$axios // Ajout de l'instance Axios
         );
         
         // Téléchargement du PDF
