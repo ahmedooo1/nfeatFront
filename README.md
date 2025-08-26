@@ -1,4 +1,4 @@
-# myFrontProjectRestau
+# nfeat (Front)
 
 Ce projet est une application frontend développée avec Nuxt.js pour un restaurant. Il permet de gérer l'affichage des menus, des catégories, des commandes, et plus encore.
 
