@@ -74,6 +74,8 @@ Poussez à la branche (```git push origin feature/AmazingFeature```)
 Ouvrez une Pull Request
 
 ## Licence
-.....
+Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
+
+
 
 
