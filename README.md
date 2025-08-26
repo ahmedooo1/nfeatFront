@@ -22,8 +22,8 @@ Pour installer ce projet, suivez les étapes suivantes :
 
 1. Clonez le repository :
     ```bash
-    git clone https://github.com/ahmedooo1/myFrontProjectRestau.git
-    cd myFrontProjectRestau
+    git clone https://github.com/ahmedooo1/nfeatFront.git
+    cd nfeatFront
     ```
 
 2. Installez les dépendances avec npm ou yarn :
