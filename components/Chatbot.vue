@@ -138,7 +138,7 @@ export default {
     
     // Obtenir l'URL complète de l'image
     getImageUrl(imagePath) {
-      return `https://apinfeat.aa-world.store${imagePath}`;
+  return `https://apinfeat.aaweb.fr${imagePath}`;
     },
     
     initializeChat() {

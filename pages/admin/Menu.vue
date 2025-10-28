@@ -227,7 +227,7 @@ export default {
       }
     },
     getImageUrl(imagePath) {
-      return `https://apinfeat.aa-world.store${imagePath}`;
+  return `https://apinfeat.aaweb.fr${imagePath}`;
     },
     validatePrice(event) {
       // Ne pas modifier la saisie de l'utilisateur directement pour une meilleure expérience

@@ -44,7 +44,7 @@ export default {
   },
   methods: {
     getImageUrl(imagePath) {
-      return `https://apinfeat.aa-world.store${imagePath}`;
+  return `https://apinfeat.aaweb.fr${imagePath}`;
     },
     async addToCart(item) {
       try {

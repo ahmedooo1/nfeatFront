@@ -1,17 +1,17 @@
 <template> 
   <div class="container mx-auto p-4">
     <h1 class="text-3xl font-bold mb-4 text-white">Gestion du Menu Administrateur</h1>
-    <button @click="showAddModal = true" class="bg-blue-500 text-white px-4 py-2 rounded mb-4">Ajouter un Élément au Menu</button>
-    <div v-if="menuItems.length === 0" class="text-white">Aucun élément de menu disponible.</div>
+    <button @click="showAddModal = true" class="bg-blue-500 text-white px-4 py-2 rounded mb-4">Ajouter un ï¿½lï¿½ment au Menu</button>
+    <div v-if="menuItems.length === 0" class="text-white">Aucun ï¿½lï¿½ment de menu disponible.</div>
     <div v-for="item in menuItems" :key="item.id" class="bg-white shadow-md rounded-lg p-4 mb-4">
       <div class="flex justify-between items-center">
         <div>
-          <img :src="getImageUrl(item.image_url)" alt="Image de l'élément du menu" class="w-32 h-32 object-cover rounded">
+          <img :src="getImageUrl(item.image_url)" alt="Image de l'ï¿½lï¿½ment du menu" class="w-32 h-32 object-cover rounded">
         </div>
         <div class="flex-grow ml-4">
           <h2 class="text-2xl font-semibold">{{ item.name }}</h2>
           <p>{{ item.description }}</p>
-          <p class="text-lg font-bold">{{ item.price }} €</p>
+          <p class="text-lg font-bold">{{ item.price }} ï¿½</p>
         </div>
         <div class="w-[200px]">
           <button @click="editItem(item)" class="bg-yellow-500 text-white px-4 py-2 rounded mr-2">Modifier</button>
@@ -23,7 +23,7 @@
     <!-- Modal Ajouter/Modifier -->
     <div v-if="showAddModal || showEditModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
       <div class="bg-white p-6 rounded shadow-lg w-96">
-        <h2 class="text-2xl font-bold mb-4">{{ showEditModal ? 'Modifier un Élément du Menu' : 'Ajouter un Élément au Menu' }}</h2>
+        <h2 class="text-2xl font-bold mb-4">{{ showEditModal ? 'Modifier un ï¿½lï¿½ment du Menu' : 'Ajouter un ï¿½lï¿½ment au Menu' }}</h2>
         <form @submit.prevent="showEditModal ? updateMenuItem() : createMenuItem()">
           <div class="mb-4">
             <label class="block text-gray-700">Nom</label>
@@ -43,7 +43,7 @@
           </div>
           <div class="flex justify-end">
             <button type="button" @click="closeModal" class="bg-gray-500 text-white px-4 py-2 rounded mr-2">Annuler</button>
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">{{ showEditModal ? 'Mettre à Jour' : 'Ajouter' }}</button>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">{{ showEditModal ? 'Mettre ï¿½ Jour' : 'Ajouter' }}</button>
           </div>
         </form>
       </div>
@@ -88,7 +88,7 @@ export default {
       await this.$axios.post('/menu', formData)
       this.closeModal()
       await this.fetchMenuItems()
-      this.$toast.success('Élément ajouté avec succès!')
+      this.$toast.success('ï¿½lï¿½ment ajoutï¿½ avec succï¿½s!')
     },
     async updateMenuItem() {
       const formData = new FormData()
@@ -102,13 +102,13 @@ export default {
       await this.$axios.put(`/menu/${this.currentItem.id}`, formData)
       this.closeModal()
       await this.fetchMenuItems()
-      this.$toast.success('Élément mis à jour avec succès!')
+      this.$toast.success('ï¿½lï¿½ment mis ï¿½ jour avec succï¿½s!')
 
     },
     async deleteItem(id) {
       await this.$axios.delete(`/menu/${id}`)
       await this.fetchMenuItems()
-      this.$toast.success('Élément supprimé avec succès!')
+      this.$toast.success('ï¿½lï¿½ment supprimï¿½ avec succï¿½s!')
     },
     editItem(item) {
       this.currentItem = { ...item }
@@ -130,7 +130,7 @@ export default {
       this.selectedFile = event.target.files[0]
     },
     getImageUrl(imagePath) {
-      return `https://apinfeat.aa-world.store${imagePath}`
+  return `https://apinfeat.aaweb.fr${imagePath}`
     }
   }
 }

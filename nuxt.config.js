@@ -59,7 +59,7 @@ export default {
   ],
 
   axios: {
-    baseURL: 'https://apinfeat.aa-world.store/api',
+  baseURL: 'https://apinfeat.aaweb.fr/api',
   },
 
   auth: {

@@ -84,7 +84,7 @@ export default {
       }
     },
     getImageUrl(imagePath) {
-      return `https://apinfeat.aa-world.store${imagePath}`;
+  return `https://apinfeat.aaweb.fr${imagePath}`;
     },
     async addToCart(item) {
       if (!this.$auth.loggedIn) {
