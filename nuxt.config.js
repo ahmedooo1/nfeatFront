@@ -62,6 +62,19 @@ export default {
   baseURL: 'https://apinfeat.aaweb.fr/api',
   },
 
+  // Use runtime config so the deployed app can change the API URL without a rebuild.
+  // Set API_URL in your environment (e.g. on the server) to override the default.
+  publicRuntimeConfig: {
+    axios: {
+      browserBaseURL: process.env.API_URL || 'https://apinfeat.aaweb.fr/api'
+    }
+  },
+  privateRuntimeConfig: {
+    axios: {
+      baseURL: process.env.API_URL || 'https://apinfeat.aaweb.fr/api'
+    }
+  },
+
   auth: {
     strategies: {
       local: {
