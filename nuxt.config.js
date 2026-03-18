@@ -12,7 +12,7 @@ export default {
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: 'D�couvrez une exp�rience culinaire unique chez NF-EAT' },
+      { hid: 'description', name: 'description', content: 'Découvrez une expérience culinaire unique chez NF-EAT' },
       { name: 'format-detection', content: 'telephone=no' },
       { name: 'robots', content: 'index, follow' },
       { name: 'keywords', content: 'restaurant, NF-EAT, menu, food, culinary experience, Need For Eat, need for eat, elbeuf, rouen, 76, syrie, restau, syrien, libanais, kurde, oriental, français, eu, nf eat, nfeat, need 4 eat' },
@@ -23,7 +23,7 @@ export default {
     ],
     link: [
       { rel: 'icon', type: 'image/png', href: '/assets/images/NF-EAT-transparent.png' },
-      { rel: 'canonical', href: 'https://nfeat.aa-world.store' }
+      { rel: 'canonical', href: 'https://nfeat.aaweb.fr' }
     ],
     script: [
       { src: 'https://www.googletagmanager.com/gtag/js?id=G-9EHF70HDB3', async: true }
