@@ -7,6 +7,15 @@
         :class="liveConnected ? 'bg-green-500' : 'bg-gray-300'"
         :title="liveConnected ? 'Temps réel actif' : 'Temps réel indisponible (repli sur actualisation périodique)'"
       ></span>
+      <button
+        v-if="!soundEnabled"
+        @click="enableSound"
+        type="button"
+        class="ml-auto text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300 rounded-full px-3 py-1 hover:bg-amber-200 transition-colors"
+      >
+        🔔 Activer le son des alertes
+      </button>
+      <span v-else class="ml-auto text-xs text-gray-500">🔔 Son activé</span>
     </div>
     <div v-if="loading" class="text-center text-gray-600">Chargement...</div>
     <div v-if="!loading && notifications.length === 0" class="text-center text-gray-600">Aucune notification trouvée.</div>
@@ -91,7 +100,8 @@ export default {
       audioNotification: null,
       eventSource: null,
       liveConnected: false,
-      pollInterval: null
+      pollInterval: null,
+      soundEnabled: false
     };
   },
   computed: {
@@ -141,6 +151,24 @@ export default {
         this.loading = false;
       }
     },
+    enableSound() {
+      // Browsers block Audio.play() until a real user gesture happens on the
+      // page (autoplay policy) - EventSource pushes arrive with no gesture
+      // behind them, so play() was silently rejected every time. Playing +
+      // immediately pausing here, directly inside this click handler,
+      // satisfies the gesture requirement and unlocks play() for the rest
+      // of the session.
+      this.audioNotification.play()
+        .then(() => {
+          this.audioNotification.pause();
+          this.audioNotification.currentTime = 0;
+          this.soundEnabled = true;
+        })
+        .catch((error) => {
+          console.error('Impossible d\'activer le son', error);
+          this.$toast.error('Impossible d\'activer le son des alertes');
+        });
+    },
     async connectLiveNotifications() {
       try {
         // Admin-gated endpoint: sets the mercureAuthorization cookie the hub
@@ -182,8 +210,10 @@ export default {
         });
         this.total += 1;
 
-        if (this.audioNotification) {
-          this.audioNotification.play().catch(() => {});
+        if (this.audioNotification && this.soundEnabled) {
+          this.audioNotification.play().catch((error) => {
+            console.error('Notification sound failed to play', error);
+          });
         }
         this.$toast.success(`Nouvelle commande de ${raw.user.name}`);
       };
