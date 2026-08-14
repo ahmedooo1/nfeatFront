@@ -1,6 +1,13 @@
 <template>
   <div class="container mx-auto p-4" v-if="$auth.loggedIn && $auth.user.roles.includes('ROLE_ADMIN')">
-    <h2 class="text-3xl font-bold mb-6 text-gray-800">Notifications de Commandes</h2>
+    <div class="flex items-center gap-3 mb-6">
+      <h2 class="text-3xl font-bold text-gray-800">Notifications de Commandes</h2>
+      <span
+        class="w-2.5 h-2.5 rounded-full"
+        :class="liveConnected ? 'bg-green-500' : 'bg-gray-300'"
+        :title="liveConnected ? 'Temps réel actif' : 'Temps réel indisponible (repli sur actualisation périodique)'"
+      ></span>
+    </div>
     <div v-if="loading" class="text-center text-gray-600">Chargement...</div>
     <div v-if="!loading && notifications.length === 0" class="text-center text-gray-600">Aucune notification trouvée.</div>
     <div v-if="!loading && notifications.length > 0">
@@ -17,8 +24,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(notification, index) in notifications" :key="notification.id" 
-                :class="getRowColorClass(index)" 
+            <tr v-for="(notification, index) in notifications" :key="notification.id"
+                :class="notification.isNew ? 'bg-green-100 border-l-4 border-green-400' : getRowColorClass(index)"
                 class="hover:bg-opacity-80 transition duration-200 ease-in-out">
               <td class="px-5 py-5 border-b border-gray-200 text-sm">{{ notification.user.name }}</td>
               <td class="px-5 py-5 border-b border-gray-200 text-sm">{{ notification.user.email }}</td>
@@ -70,19 +77,21 @@
 </template>
 
 <script>
-import axios from 'axios'; // Assurez-vous que axios est importé
+const MERCURE_TOPIC = 'https://apinfeat.aaweb.fr/orders/notifications';
+const MERCURE_PUBLIC_URL = 'https://apinfeat.aaweb.fr/.well-known/mercure';
 
 export default {
   data() {
     return {
       notifications: [],
-      notificationService: null, // Assurez-vous que cet objet est correctement initialisé
       loading: true,
       page: 1,
       limit: 10,
       total: 0,
       audioNotification: null,
-      eventSource: null
+      eventSource: null,
+      liveConnected: false,
+      pollInterval: null
     };
   },
   computed: {
@@ -92,8 +101,17 @@ export default {
   },
   async mounted() {
     await this.fetchNotifications();
-    this.interval = setInterval(this.fetchNotifications, 10000); // Set interval to refresh every 15 seconds
-    this.listenForNotifications();
+    // Real-time push handles new orders instantly; this is just a safety-net
+    // reconciliation in case a push is missed (connection drop, tab backgrounded).
+    this.pollInterval = setInterval(this.fetchNotifications, 60000);
+    if (process.client) {
+      this.audioNotification = new Audio('/assets/sounds/notif.mp3');
+    }
+    await this.connectLiveNotifications();
+  },
+  beforeDestroy() {
+    if (this.pollInterval) clearInterval(this.pollInterval);
+    if (this.eventSource) this.eventSource.close();
   },
   methods: {
     async fetchNotifications() {
@@ -113,7 +131,7 @@ export default {
             totalQuantity: details.totalQuantity,
             totalPrice: details.totalPrice,
             createdAt: this.formatToParisTimezone(notification.createdAt),
-            isNew: false // Propriété pour tracker les nouvelles notifications
+            isNew: false
           };
         });
         this.total = response.data.total;
@@ -123,20 +141,58 @@ export default {
         this.loading = false;
       }
     },
-    listenForNotifications() {
-      // Assurez-vous que notificationService est bien initialisé
-      if (!this.notificationService) {
-        console.error('notificationService is not initialized');
+    async connectLiveNotifications() {
+      try {
+        // Admin-gated endpoint: sets the mercureAuthorization cookie the hub
+        // needs to authorize this subscription (payload has customer PII).
+        await this.$axios.get('/admin/mercure-token', { withCredentials: true });
+      } catch (error) {
+        console.error('Failed to obtain Mercure subscriber token, falling back to polling only', error);
         return;
       }
 
-      try {
-        this.notificationService.on('new-notification', (notification) => {
-          this.notifications.push(notification);
+      const url = `${MERCURE_PUBLIC_URL}?topic=${encodeURIComponent(MERCURE_TOPIC)}`;
+      this.eventSource = new EventSource(url, { withCredentials: true });
+
+      this.eventSource.onopen = () => {
+        this.liveConnected = true;
+      };
+
+      this.eventSource.onmessage = (event) => {
+        let raw;
+        try {
+          raw = JSON.parse(event.data);
+        } catch (error) {
+          console.error('Invalid notification payload', error);
+          return;
+        }
+
+        if (this.notifications.some(n => n.id === raw.id)) return;
+
+        const details = this.parseDetails(raw.details);
+        this.notifications.unshift({
+          id: raw.id,
+          user: raw.user,
+          details: raw.details,
+          commandNames: details.commandNames.join(', '),
+          totalQuantity: details.totalQuantity,
+          totalPrice: details.totalPrice,
+          createdAt: this.formatToParisTimezone(raw.createdAt),
+          isNew: true
         });
-      } catch (error) {
-        console.error('Erreur lors de l\'écoute des notifications:', error);
-      }
+        this.total += 1;
+
+        if (this.audioNotification) {
+          this.audioNotification.play().catch(() => {});
+        }
+        this.$toast.success(`Nouvelle commande de ${raw.user.name}`);
+      };
+
+      this.eventSource.onerror = () => {
+        // Native EventSource retries the connection automatically; this just
+        // reflects connection state in the UI indicator.
+        this.liveConnected = false;
+      };
     },
     parseDetails(details) {
       const items = details.split(', ');
@@ -173,29 +229,29 @@ export default {
         // En France, le changement d'heure a lieu:
         // - Le dernier dimanche de mars (passage à l'heure d'été: UTC+2)
         // - Le dernier dimanche d'octobre (passage à l'heure d'hiver: UTC+1)
-        
+
         // Année de la date
         const year = dateObj.getFullYear();
-        
+
         // Dernier dimanche de mars (passage à l'heure d'été)
         const marchDate = new Date(year, 2, 31); // 31 mars
         while (marchDate.getDay() !== 0) { // Tant que ce n'est pas un dimanche
           marchDate.setDate(marchDate.getDate() - 1);
         }
-        
+
         // Dernier dimanche d'octobre (passage à l'heure d'hiver)
         const octoberDate = new Date(year, 9, 31); // 31 octobre
         while (octoberDate.getDay() !== 0) { // Tant que ce n'est pas un dimanche
           octoberDate.setDate(octoberDate.getDate() - 1);
         }
-        
+
         // Déterminer si la date est en heure d'été ou d'hiver
         const isSummerTime = dateObj >= marchDate && dateObj < octoberDate;
-        
+
         // Appliquer le décalage horaire approprié
         // UTC+2 pour l'heure d'été, UTC+1 pour l'heure d'hiver
         const offset = isSummerTime ? 2 : 1;
-        
+
         // Appliquer le décalage horaire
         const hours = dateObj.getHours() + offset;
         const minutes = dateObj.getMinutes();
@@ -208,14 +264,14 @@ export default {
         let adjustedDay = day;
         let adjustedMonth = month;
         let adjustedYear = fullYear;
-        
+
         if (hours >= 24) {
           adjustedHours = hours - 24;
-          
+
           // Créer une nouvelle date pour gérer correctement le changement de jour/mois/année
           const nextDay = new Date(dateObj);
           nextDay.setDate(nextDay.getDate() + 1);
-          
+
           adjustedDay = nextDay.getDate();
           adjustedMonth = nextDay.getMonth() + 1;
           adjustedYear = nextDay.getFullYear();
@@ -249,12 +305,12 @@ export default {
         'bg-amber-50 border-l-4 border-amber-300',  // Moins récente
         'bg-gray-50 border-l-4 border-gray-300'     // Ancienne
       ];
-      
+
       // Si l'index est inférieur à la longueur du tableau, on utilise cette couleur
       if (index < colorClasses.length) {
         return colorClasses[index];
       }
-      
+
       // Sinon, on utilise la dernière couleur (ancienne)
       return colorClasses[colorClasses.length - 1];
     },
