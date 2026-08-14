@@ -39,7 +39,7 @@ export default {
   // Plugins to run before rendering page
   plugins: [
     '~/plugins/toastification.js',
-    '~/plugins/socket.js',
+    '~/plugins/mercureNotifications.client.js',
     '~/plugins/chat.js'
   ],
 

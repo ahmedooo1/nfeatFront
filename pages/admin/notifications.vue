@@ -7,15 +7,6 @@
         :class="liveConnected ? 'bg-green-500' : 'bg-gray-300'"
         :title="liveConnected ? 'Temps réel actif' : 'Temps réel indisponible (repli sur actualisation périodique)'"
       ></span>
-      <button
-        v-if="!soundEnabled"
-        @click="enableSound"
-        type="button"
-        class="ml-auto text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300 rounded-full px-3 py-1 hover:bg-amber-200 transition-colors"
-      >
-        🔔 Activer le son des alertes
-      </button>
-      <span v-else class="ml-auto text-xs text-gray-500">🔔 Son activé</span>
     </div>
     <div v-if="loading" class="text-center text-gray-600">Chargement...</div>
     <div v-if="!loading && notifications.length === 0" class="text-center text-gray-600">Aucune notification trouvée.</div>
@@ -86,8 +77,7 @@
 </template>
 
 <script>
-const MERCURE_TOPIC = 'https://apinfeat.aaweb.fr/orders/notifications';
-const MERCURE_PUBLIC_URL = 'https://apinfeat.aaweb.fr/.well-known/mercure';
+import { notifBus } from '~/plugins/mercureNotifications.client.js';
 
 export default {
   data() {
@@ -96,32 +86,27 @@ export default {
       loading: true,
       page: 1,
       limit: 10,
-      total: 0,
-      audioNotification: null,
-      eventSource: null,
-      liveConnected: false,
-      pollInterval: null,
-      soundEnabled: false
+      total: 0
     };
   },
   computed: {
     totalPages() {
       return Math.ceil(this.total / this.limit);
+    },
+    liveConnected() {
+      return this.$store.state.notifications.liveConnected;
     }
   },
   async mounted() {
     await this.fetchNotifications();
-    // Real-time push handles new orders instantly; this is just a safety-net
-    // reconciliation in case a push is missed (connection drop, tab backgrounded).
-    this.pollInterval = setInterval(this.fetchNotifications, 60000);
     if (process.client) {
-      this.audioNotification = new Audio('/sounds/notif.mp3');
+      notifBus.$on('new-notification', this.onLiveNotification);
     }
-    await this.connectLiveNotifications();
   },
   beforeDestroy() {
-    if (this.pollInterval) clearInterval(this.pollInterval);
-    if (this.eventSource) this.eventSource.close();
+    if (process.client) {
+      notifBus.$off('new-notification', this.onLiveNotification);
+    }
   },
   methods: {
     async fetchNotifications() {
@@ -145,84 +130,41 @@ export default {
           };
         });
         this.total = response.data.total;
+
+        // The global badge is a "you have unread" signal; viewing page 1
+        // (the newest items) is what counts as having seen them.
+        if (this.page === 1) {
+          const latestId = this.notifications[0]?.id ?? null;
+          this.$store.commit('notifications/RESET_UNREAD', latestId);
+        }
       } catch (error) {
         console.error('Failed to load notifications', error);
       } finally {
         this.loading = false;
       }
     },
-    enableSound() {
-      // Browsers block Audio.play() until a real user gesture happens on the
-      // page (autoplay policy) - EventSource pushes arrive with no gesture
-      // behind them, so play() was silently rejected every time. Playing +
-      // immediately pausing here, directly inside this click handler,
-      // satisfies the gesture requirement and unlocks play() for the rest
-      // of the session.
-      this.audioNotification.play()
-        .then(() => {
-          this.audioNotification.pause();
-          this.audioNotification.currentTime = 0;
-          this.soundEnabled = true;
-        })
-        .catch((error) => {
-          console.error('Impossible d\'activer le son', error);
-          this.$toast.error('Impossible d\'activer le son des alertes');
-        });
-    },
-    async connectLiveNotifications() {
-      try {
-        // Admin-gated endpoint: sets the mercureAuthorization cookie the hub
-        // needs to authorize this subscription (payload has customer PII).
-        await this.$axios.get('/admin/mercure-token', { withCredentials: true });
-      } catch (error) {
-        console.error('Failed to obtain Mercure subscriber token, falling back to polling only', error);
-        return;
+    onLiveNotification(raw) {
+      // Only splice into the visible list while looking at the first page -
+      // inserting on page 2+ would silently shift what's on screen.
+      if (this.page !== 1) return;
+      if (this.notifications.some(n => n.id === raw.id)) return;
+
+      const details = this.parseDetails(raw.details);
+      this.notifications.unshift({
+        id: raw.id,
+        user: raw.user,
+        details: raw.details,
+        commandNames: details.commandNames.join(', '),
+        totalQuantity: details.totalQuantity,
+        totalPrice: details.totalPrice,
+        createdAt: this.formatToParisTimezone(raw.createdAt),
+        isNew: true
+      });
+      if (this.notifications.length > this.limit) {
+        this.notifications.pop();
       }
-
-      const url = `${MERCURE_PUBLIC_URL}?topic=${encodeURIComponent(MERCURE_TOPIC)}`;
-      this.eventSource = new EventSource(url, { withCredentials: true });
-
-      this.eventSource.onopen = () => {
-        this.liveConnected = true;
-      };
-
-      this.eventSource.onmessage = (event) => {
-        let raw;
-        try {
-          raw = JSON.parse(event.data);
-        } catch (error) {
-          console.error('Invalid notification payload', error);
-          return;
-        }
-
-        if (this.notifications.some(n => n.id === raw.id)) return;
-
-        const details = this.parseDetails(raw.details);
-        this.notifications.unshift({
-          id: raw.id,
-          user: raw.user,
-          details: raw.details,
-          commandNames: details.commandNames.join(', '),
-          totalQuantity: details.totalQuantity,
-          totalPrice: details.totalPrice,
-          createdAt: this.formatToParisTimezone(raw.createdAt),
-          isNew: true
-        });
-        this.total += 1;
-
-        if (this.audioNotification && this.soundEnabled) {
-          this.audioNotification.play().catch((error) => {
-            console.error('Notification sound failed to play', error);
-          });
-        }
-        this.$toast.success(`Nouvelle commande de ${raw.user.name}`);
-      };
-
-      this.eventSource.onerror = () => {
-        // Native EventSource retries the connection automatically; this just
-        // reflects connection state in the UI indicator.
-        this.liveConnected = false;
-      };
+      this.total += 1;
+      this.$store.commit('notifications/RESET_UNREAD', raw.id);
     },
     parseDetails(details) {
       const items = details.split(', ');

@@ -39,8 +39,12 @@
           </router-link>
         </li>
         <li v-if="$auth.loggedIn && $auth.user.roles.includes('ROLE_ADMIN')">
-          <router-link to="/admin/notifications" class="flex items-center" title="Notifications" @click.native="closeMenu">
+          <router-link to="/admin/notifications" class="relative flex items-center" title="Notifications" @click.native="closeMenu">
             <img width="30" height="30" src="https://img.icons8.com/external-creatype-outline-colourcreatype/64/FFFFFF/external-alarm-essential-ui-v2-creatype-outline-colourcreatype-2.png" alt="external-alarm-essential-ui-v2-creatype-outline-colourcreatype-2" class="mr-2"/>Notifications
+            <span
+              v-if="unreadCount > 0"
+              class="absolute -top-1 left-3 min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[11px] leading-[18px] text-center font-bold"
+            >{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
           </router-link>
         </li>
         <li v-if="!$auth.loggedIn">
@@ -70,6 +74,11 @@ export default {
     return {
       showModal: false,
       isMenuOpen: false
+    }
+  },
+  computed: {
+    unreadCount() {
+      return this.$store.state.notifications.unreadCount
     }
   },
   methods: {
