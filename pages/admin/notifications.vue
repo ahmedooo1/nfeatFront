@@ -105,7 +105,7 @@ export default {
     // reconciliation in case a push is missed (connection drop, tab backgrounded).
     this.pollInterval = setInterval(this.fetchNotifications, 60000);
     if (process.client) {
-      this.audioNotification = new Audio('/assets/sounds/notif.mp3');
+      this.audioNotification = new Audio('/sounds/notif.mp3');
     }
     await this.connectLiveNotifications();
   },
@@ -213,72 +213,29 @@ export default {
     },
     formatToParisTimezone(dateString) {
       try {
-        // Si la date est déjà un objet Date
-        let dateObj = dateString;
-        if (typeof dateString === 'string') {
-          dateObj = new Date(dateString);
-        }
+        const dateObj = typeof dateString === 'string' ? new Date(dateString) : dateString;
 
-        // Vérifier si la date est valide
         if (isNaN(dateObj.getTime())) {
           console.error('Date invalide:', dateString);
           return dateString;
         }
 
-        // Déterminer si la date est en heure d'été ou d'hiver en France
-        // En France, le changement d'heure a lieu:
-        // - Le dernier dimanche de mars (passage à l'heure d'été: UTC+2)
-        // - Le dernier dimanche d'octobre (passage à l'heure d'hiver: UTC+1)
+        // Intl handles the DST transition dates correctly on its own (they
+        // shift slightly year to year) instead of a hand-rolled "last Sunday
+        // of March/October" approximation.
+        const parts = new Intl.DateTimeFormat('fr-FR', {
+          timeZone: 'Europe/Paris',
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }).formatToParts(dateObj).reduce((acc, part) => {
+          acc[part.type] = part.value;
+          return acc;
+        }, {});
 
-        // Année de la date
-        const year = dateObj.getFullYear();
-
-        // Dernier dimanche de mars (passage à l'heure d'été)
-        const marchDate = new Date(year, 2, 31); // 31 mars
-        while (marchDate.getDay() !== 0) { // Tant que ce n'est pas un dimanche
-          marchDate.setDate(marchDate.getDate() - 1);
-        }
-
-        // Dernier dimanche d'octobre (passage à l'heure d'hiver)
-        const octoberDate = new Date(year, 9, 31); // 31 octobre
-        while (octoberDate.getDay() !== 0) { // Tant que ce n'est pas un dimanche
-          octoberDate.setDate(octoberDate.getDate() - 1);
-        }
-
-        // Déterminer si la date est en heure d'été ou d'hiver
-        const isSummerTime = dateObj >= marchDate && dateObj < octoberDate;
-
-        // Appliquer le décalage horaire approprié
-        // UTC+2 pour l'heure d'été, UTC+1 pour l'heure d'hiver
-        const offset = isSummerTime ? 2 : 1;
-
-        // Appliquer le décalage horaire
-        const hours = dateObj.getHours() + offset;
-        const minutes = dateObj.getMinutes();
-        const day = dateObj.getDate();
-        const month = dateObj.getMonth() + 1;
-        const fullYear = dateObj.getFullYear();
-
-        // Gérer le débordement des heures (si hours > 23)
-        let adjustedHours = hours;
-        let adjustedDay = day;
-        let adjustedMonth = month;
-        let adjustedYear = fullYear;
-
-        if (hours >= 24) {
-          adjustedHours = hours - 24;
-
-          // Créer une nouvelle date pour gérer correctement le changement de jour/mois/année
-          const nextDay = new Date(dateObj);
-          nextDay.setDate(nextDay.getDate() + 1);
-
-          adjustedDay = nextDay.getDate();
-          adjustedMonth = nextDay.getMonth() + 1;
-          adjustedYear = nextDay.getFullYear();
-        }
-
-        // Formater la date avec l'heure correcte de Paris
-        return `${adjustedDay.toString().padStart(2, '0')}/${adjustedMonth.toString().padStart(2, '0')}/${adjustedYear} ${adjustedHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        return `${parts.day}/${parts.month}/${parts.year} ${parts.hour}:${parts.minute}`;
       } catch (error) {
         console.error('Erreur lors du formatage de la date:', error);
         return dateString;
