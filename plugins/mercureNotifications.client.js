@@ -17,7 +17,10 @@ export default function (context) {
   let connected = false
 
   function isAdmin() {
-    return !!(app.$auth.loggedIn && app.$auth.user?.roles?.includes('ROLE_ADMIN'))
+    // $auth is injected by the auth-next module; guard against reading it
+    // before that injection has landed (plugin ordering isn't guaranteed
+    // relative to module setup on every route/render path).
+    return !!(app.$auth && app.$auth.loggedIn && app.$auth.user?.roles?.includes('ROLE_ADMIN'))
   }
 
   function unlockAudio() {
@@ -78,7 +81,7 @@ export default function (context) {
 
       store.commit('notifications/NOTE_NEW_ORDER', raw.id)
       playSound()
-      app.$toast.success(`Nouvelle commande de ${raw.user.name}`)
+      if (app.$toast) app.$toast.success(`Nouvelle commande de ${raw.user.name}`)
       notifBus.$emit('new-notification', raw)
     }
 
@@ -107,11 +110,15 @@ export default function (context) {
 
   // @nuxtjs/auth-next exposes $auth as a plain reactive object, not a
   // component - re-check on every route change, which naturally covers
-  // login/logout since both trigger a redirect.
+  // login/logout since both trigger a redirect. onReady (rather than an
+  // immediate call) waits until the router - and every module, including
+  // auth - has actually finished setting up.
   app.router.afterEach(() => {
     syncConnection()
   })
-  syncConnection()
+  app.router.onReady(() => {
+    syncConnection()
+  })
 
   // Safety-net reconciliation in case a push is missed (dropped connection,
   // backgrounded tab) - deliberately infrequent since this is a fallback,
