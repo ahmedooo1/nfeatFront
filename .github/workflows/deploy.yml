@@ -1,43 +1,89 @@
-name: Deploy Nuxt Application
+name: Deploy site NF-EAT
 
+# Le site (dossier site/, Nuxt 4) est construit ici, sur GitHub : le serveur
+# ne reçoit que des fichiers statiques. Les pages publiques sont pré-rendues
+# à partir de l'API en ligne (référencement) ; une reconstruction nocturne
+# rafraîchit ces pages quand la carte change.
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+    paths: ['site/**', '.github/workflows/deploy.yml']
+  pull_request:
+    paths: ['site/**']
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-site
+  cancel-in-progress: false
+
+permissions:
+  contents: read
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        working-directory: site
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+      - run: npx nuxt typecheck
+      - name: Génération du site statique
+        run: npx nuxt generate
+      - name: Contrôle du rendu
+        run: |
+          grep -q 'Saveurs' .output/public/index.html
+          test -f .output/public/200.html
+          test -f .output/public/sitemap.xml
+          echo "Pages de plats pré-rendues : $(ls .output/public/carte | grep -cE '^[0-9]+$')"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: site/.output/public
+          retention-days: 7
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '18'
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: public
 
-    - name: Install Dependencies
-      run: npm install
-      
-    - name: Build
-      run: npm run build
+      # La version en ligne est d'abord copiée dans dist.previous : pour
+      # revenir en arrière, il suffit de la remettre à la place de dist.
+      - name: Envoi sur le serveur
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          HOST: ${{ secrets.SERVER_IP }}
+          PORT: ${{ secrets.API_SSH_PORT }}
+          REMOTE_USER: ${{ secrets.SERVER_USER }}
+          DEST: /var/www/nuxt-app/dist
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$PORT" "$HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          SSH="ssh -i $HOME/.ssh/deploy_key -p $PORT"
+          $SSH "$REMOTE_USER@$HOST" "set -e; mkdir -p '$DEST'; rm -rf '$DEST.previous'; cp -a '$DEST' '$DEST.previous'"
+          rsync -az --delete -e "$SSH" public/ "$REMOTE_USER@$HOST:$DEST/"
+          rm -f ~/.ssh/deploy_key
 
-    - name: Generate Static Files
-      run: npm run generate
-
-    - name: Deploy to Server
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.SERVER_IP }}
-        username: ${{ secrets.SERVER_USER }}
-        key: ${{ secrets.SSH_KEY }}
-        port: ${{ secrets.API_SSH_PORT }}
-        script: |
-          cd /var/www/nuxt-app
-          git pull origin main
-          npm install --production
-          npm run build
-          npm run generate
-          pm2 restart all
+      - name: Vérification en ligne
+        run: |
+          set -euo pipefail
+          sleep 3
+          curl -fsS https://nfeat.aaweb.fr/ | grep -q 'Saveurs'
+          curl -fsS -o /dev/null https://nfeat.aaweb.fr/carte
+          curl -fsS https://nfeat.aaweb.fr/sitemap.xml | grep -q '<urlset'

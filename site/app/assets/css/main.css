@@ -1,0 +1,103 @@
+@import "tailwindcss";
+/* Polices hébergées avec le site (aucun appel à Google Fonts). */
+@import "@fontsource-variable/fraunces/opsz.css";
+@import "@fontsource-variable/fraunces/opsz-italic.css";
+@import "@fontsource-variable/manrope/index.css";
+
+/* ------------------------------------------------------------------------
+   Identité visuelle. Pour un autre restaurant : changer ces variables.
+   ------------------------------------------------------------------------ */
+@theme {
+  --font-display: "Fraunces Variable", ui-serif, Georgia, serif;
+  --font-sans: "Manrope Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink: #16110d;        /* charbon chaud */
+  --color-ink-2: #231b15;
+  --color-ink-3: #3a2e25;
+  --color-cream: #f7f1e8;      /* papier */
+  --color-cream-2: #efe6d8;
+  --color-sand: #d9c9b1;
+  --color-ember: #e0512a;      /* braise : action principale */
+  --color-ember-dark: #b93d1b;
+  --color-saffron: #f2a93b;    /* safran : accents */
+  --color-olive: #5b6b3a;      /* frais, disponible */
+  --color-muted: #7a6a5c;
+
+  --radius-arch: 999px 999px 1.25rem 1.25rem;
+  --ease-out-soft: cubic-bezier(.2,.8,.2,1);
+}
+
+@layer base {
+  html { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
+  body {
+    @apply bg-cream text-ink font-sans antialiased;
+    font-feature-settings: "ss01", "cv11";
+  }
+  h1, h2, h3, .font-display { font-family: var(--font-display); font-optical-sizing: auto; }
+  ::selection { background: var(--color-saffron); color: var(--color-ink); }
+  :focus-visible { outline: 2px solid var(--color-ember); outline-offset: 3px; border-radius: 6px; }
+  [v-cloak] { display: none; }
+}
+
+@utility container-x { @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8; }
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold tracking-wide transition
+         duration-200 disabled:cursor-not-allowed disabled:opacity-50 active:scale-[.98];
+}
+@utility btn-primary { @apply btn bg-ember text-white shadow-[0_10px_30px_-12px_rgba(224,81,42,.8)] hover:bg-ember-dark; }
+@utility btn-dark    { @apply btn bg-ink text-cream hover:bg-ink-3; }
+@utility btn-ghost   { @apply btn border border-ink/15 bg-white/60 text-ink backdrop-blur hover:border-ink/40; }
+@utility btn-light   { @apply btn border border-white/25 bg-white/10 text-white backdrop-blur hover:bg-white/20; }
+
+@utility field {
+  @apply w-full rounded-2xl border border-ink/10 bg-white px-4 py-3 text-[15px] text-ink shadow-sm outline-none
+         transition placeholder:text-muted/70 focus:border-ember focus:ring-4 focus:ring-ember/15;
+}
+@utility label { @apply mb-1.5 block text-xs font-bold uppercase tracking-[.14em] text-muted; }
+
+@utility card { @apply rounded-3xl border border-ink/5 bg-white shadow-[0_1px_0_rgba(22,17,13,.04),0_20px_40px_-30px_rgba(22,17,13,.35)]; }
+
+@utility eyebrow {
+  @apply inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-[.22em] text-ember;
+  &::before { content: ""; @apply h-px w-8 bg-current; }
+}
+
+/* Arche orientale : cadre signature des visuels. */
+@utility arch { border-radius: var(--radius-arch); overflow: hidden; }
+
+@utility grain {
+  &::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .08; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+@utility skeleton { @apply animate-pulse rounded-2xl bg-ink/5; }
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+/* Apparition douce au défilement (voir directive v-reveal). */
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s var(--ease-out-soft), transform .7s var(--ease-out-soft); }
+.reveal.is-visible { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  html { scroll-behavior: auto; }
+}
+
+/* Transitions de page et de tiroir. */
+.page-enter-active, .page-leave-active { transition: opacity .25s ease, transform .25s ease; }
+.page-enter-from { opacity: 0; transform: translateY(8px); }
+.page-leave-to { opacity: 0; }
+.fade-enter-active, .fade-leave-active { transition: opacity .2s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+.drawer-enter-active, .drawer-leave-active { transition: transform .35s var(--ease-out-soft); }
+.drawer-enter-from, .drawer-leave-to { transform: translateX(100%); }
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; }
+}

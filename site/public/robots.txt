@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /compte
+Disallow: /commande
+Sitemap: https://nfeat.aaweb.fr/sitemap.xml
