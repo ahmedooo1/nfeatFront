@@ -71,6 +71,17 @@ async function save() {
   }
 }
 
+async function toggle(d: Dish) {
+  const available = d.available === false
+  try {
+    await api(`/menu/${d.id}`, { method: 'PUT', body: { available } })
+    d.available = available
+    toast.success(available ? `${d.name} est de nouveau disponible.` : `${d.name} est indisponible.`)
+  } catch (e) {
+    toast.error(apiMessage(e))
+  }
+}
+
 async function remove(d: Dish) {
   if (!confirm(`Supprimer « ${d.name} » de la carte ?`)) return
   try {
@@ -103,11 +114,15 @@ async function remove(d: Dish) {
     <div v-if="loading" class="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3"><div v-for="i in 6" :key="i" class="skeleton h-28" /></div>
     <div v-else class="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       <article v-for="d in filtered" :key="d.id" class="card flex gap-4 p-3">
-        <div class="h-24 w-24 shrink-0 overflow-hidden rounded-lg"><DishImage :src="d.image_url" :alt="d.name" :category="d.category?.title" /></div>
+        <div class="h-24 w-24 shrink-0 overflow-hidden rounded-lg" :class="{ 'opacity-40': d.available === false }"><DishImage :src="d.image_url" :alt="d.name" /></div>
         <div class="flex min-w-0 flex-1 flex-col py-1">
           <p class="truncate font-semibold">{{ d.name }}</p>
           <p class="text-xs text-gray-300">{{ d.category?.title ?? 'Sans catégorie' }}</p>
           <p class="mt-auto text-lg font-bold text-brand">{{ formatPrice(d.price) }}</p>
+          <button class="mt-1 flex w-fit items-center gap-2 text-xs font-semibold" role="switch" :aria-checked="d.available !== false" @click="toggle(d)">
+            <span class="relative h-5 w-9 rounded-full transition" :class="d.available !== false ? 'bg-green-600' : 'bg-white/20'"><span class="absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all" :class="d.available !== false ? 'left-[18px]' : 'left-0.5'" /></span>
+            {{ d.available !== false ? 'Disponible' : 'Indisponible' }}
+          </button>
         </div>
         <div class="flex flex-col gap-1">
           <button class="grid h-9 w-9 place-items-center rounded-full hover:bg-white/10" aria-label="Modifier" @click="start(d)"><Icon name="edit" :size="16" /></button>

@@ -17,7 +17,7 @@ async function load() {
     api<{ data: OrderSummary[] }>('/admin/orders', { query: { limit: 50 } }).catch(() => ({ data: [] })),
   ])
   stats.value = s
-  orders.value = o.data
+  orders.value = o.data.filter((x) => x.status !== 'cancelled')
 }
 onMounted(load)
 
@@ -32,6 +32,7 @@ const today = computed(() => {
   const list = orders.value.filter((o) => new Date(o.createdAt).toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' }) === key)
   return { count: list.length, revenue: list.reduce((s, o) => s + o.total, 0) }
 })
+const inProgress = computed(() => orders.value.filter((o) => isActiveOrder(o.status)).length)
 const average = computed(() => (orders.value.length ? orders.value.reduce((s, o) => s + o.total, 0) / orders.value.length : 0))
 
 // Ventes des 7 derniers jours, pour le graphique.
@@ -65,7 +66,7 @@ const topDishes = computed(() => {
       </div>
       <div class="flex items-center gap-2">
         <span class="flex items-center gap-2 rounded-full bg-tile px-4 py-2 text-xs font-bold">
-          <span class="h-2.5 w-2.5 rounded-full" :class="connected ? 'bg-green-500/200' : 'bg-sand'" />
+          <span class="h-2.5 w-2.5 rounded-full" :class="connected ? 'bg-green-500' : 'bg-sand'" />
           {{ connected ? 'Commandes en direct' : 'Direct indisponible' }}
         </span>
         <button class="grid h-9 w-9 place-items-center rounded-full bg-tile" :aria-label="sound ? 'Couper le son' : 'Activer le son'" @click="sound = !sound">
@@ -73,6 +74,11 @@ const topDishes = computed(() => {
         </button>
       </div>
     </div>
+
+    <NuxtLink v-if="inProgress" to="/admin/commandes" class="mt-6 flex items-center justify-between rounded-lg bg-brand px-5 py-4 font-bold text-gray-900 hover:brightness-110">
+      <span>{{ inProgress }} commande{{ inProgress > 1 ? 's' : '' }} en cours</span>
+      <Icon name="arrow" :size="18" />
+    </NuxtLink>
 
     <div class="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <div class="card p-6">
@@ -120,7 +126,7 @@ const topDishes = computed(() => {
       </div>
       <div v-if="live.length" class="mx-6 mb-4 space-y-2">
         <div v-for="o in live" :key="`live-${o.id}`" class="flex items-center gap-3 rounded-lg bg-green-500/20 px-4 py-3 text-sm">
-          <span class="h-2.5 w-2.5 animate-pulse rounded-full bg-green-500/200" />
+          <span class="h-2.5 w-2.5 animate-pulse rounded-full bg-green-500" />
           <span class="font-bold">{{ o.user.name ?? o.user.email }}</span>
           <span class="flex-1 truncate text-gray-300">{{ o.details }}</span>
           <span class="font-bold">{{ formatPrice(o.totalPrice) }}</span>

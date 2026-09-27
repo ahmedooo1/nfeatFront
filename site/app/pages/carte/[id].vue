@@ -112,7 +112,8 @@ useHead(() => ({
         <h1 class="mt-1 text-3xl font-bold sm:text-4xl">{{ dish.name }}</h1>
         <p class="mt-3 text-2xl font-bold text-brand">{{ formatPrice(dish.price) }}</p>
         <p class="mt-4 whitespace-pre-line leading-relaxed text-gray-100">{{ dish.description }}</p>
-        <div class="mt-auto flex flex-wrap items-center gap-3 pt-8">
+        <p v-if="dish.available === false" class="mt-auto rounded-lg bg-white/5 px-4 py-3 pt-3 font-semibold text-gray-300">Indisponible pour le moment</p>
+        <div v-else class="mt-auto flex flex-wrap items-center gap-3 pt-8">
           <QuantityStepper v-model="quantity" />
           <button class="btn-add flex-1 !rounded-lg !py-3 text-lg" :disabled="adding" :aria-label="`Ajouter ${dish.name} au panier`" @click="add">
             <Icon name="bag" :size="20" /> {{ formatPrice(Number(dish.price) * quantity) }}

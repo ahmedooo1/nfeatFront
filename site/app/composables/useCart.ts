@@ -15,6 +15,7 @@ export function useCart() {
 
   const count = computed(() => lines.value.reduce((n, l) => n + l.quantity, 0))
   const total = computed(() => lines.value.reduce((s, l) => s + Number(l.price) * l.quantity, 0))
+  const hasUnavailable = computed(() => lines.value.some((l) => l.available === false))
 
   const readGuest = (): CartLine[] => {
     if (!import.meta.client) return []
@@ -34,7 +35,7 @@ export function useCart() {
     loading.value = true
     try {
       const rows = await api<(CartLine & { cartId: number })[]>('/carts')
-      lines.value = rows.map(({ menuItemId, name, price, image_url, quantity, description }) => ({ menuItemId, name, price, image_url, quantity, description }))
+      lines.value = rows.map(({ menuItemId, name, price, image_url, quantity, description, available }) => ({ menuItemId, name, price, image_url, quantity, description, available }))
     } finally {
       loading.value = false
     }
@@ -96,5 +97,5 @@ export function useCart() {
     lines.value = readGuest()
   }
 
-  return { lines, open, loading, count, total, refresh, add, setQuantity, remove, clear, mergeGuestCart, reset }
+  return { lines, open, loading, count, total, hasUnavailable, refresh, add, setQuantity, remove, clear, mergeGuestCart, reset }
 }

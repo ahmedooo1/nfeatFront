@@ -3,6 +3,7 @@ import type { Dish } from '~/types'
 const props = defineProps<{ dish: Dish; eager?: boolean }>()
 const cart = useCart()
 const adding = ref(false)
+const soldOut = computed(() => props.dish.available === false)
 
 async function add() {
   adding.value = true
@@ -18,8 +19,9 @@ async function add() {
 
 <template>
   <article class="card flex flex-col overflow-hidden text-left transition duration-300 hover:scale-[1.03]">
-    <NuxtLink :to="`/carte/${dish.id}`" class="block h-48" :aria-label="dish.name">
-      <DishImage :src="dish.image_url" :alt="dish.name" :eager="eager" />
+    <NuxtLink :to="`/carte/${dish.id}`" class="relative block h-48" :aria-label="dish.name">
+      <DishImage :src="dish.image_url" :alt="dish.name" :eager="eager" :class="{ 'opacity-40 grayscale': soldOut }" />
+      <span v-if="soldOut" class="absolute left-3 top-3 rounded-full bg-gray-900/90 px-3 py-1 text-xs font-bold">Indisponible</span>
     </NuxtLink>
     <div class="flex flex-1 flex-col p-4">
       <h3 class="text-xl font-semibold"><NuxtLink :to="`/carte/${dish.id}`" class="hover:text-brand">{{ dish.name }}</NuxtLink></h3>
@@ -29,8 +31,9 @@ async function add() {
         <p class="text-lg font-bold">{{ formatPrice(dish.price) }}</p>
         <span class="flex items-center gap-1 text-xs text-gray-300"><Icon name="chat" :size="14" /> {{ dish.commentCount }}</span>
       </div>
-      <button class="btn-add mt-3 w-full !rounded-lg" :disabled="adding" @click="add">
-        <Icon :name="adding ? 'check' : 'bag'" :size="18" /> Ajouter au panier
+      <button class="btn-add mt-3 w-full !rounded-lg" :disabled="adding || soldOut" @click="add">
+        <template v-if="soldOut">Indisponible</template>
+        <template v-else><Icon :name="adding ? 'check' : 'bag'" :size="18" /> Ajouter au panier</template>
       </button>
     </div>
   </article>

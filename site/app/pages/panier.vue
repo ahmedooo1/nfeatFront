@@ -31,7 +31,8 @@ function checkout() {
               <NuxtLink :to="`/carte/${line.menuItemId}`" class="truncate text-lg font-semibold hover:text-brand sm:text-xl">{{ line.name }}</NuxtLink>
               <span class="shrink-0 text-lg font-bold tabular-nums">{{ formatPrice(Number(line.price) * line.quantity) }}</span>
             </div>
-            <p class="text-sm text-gray-300">{{ formatPrice(line.price) }} l’unité</p>
+            <p v-if="line.available === false" class="text-sm font-semibold text-red-300">Plus disponible, retirez-le pour commander</p>
+            <p v-else class="text-sm text-gray-300">{{ formatPrice(line.price) }} l’unité</p>
             <div class="mt-3 flex flex-wrap items-center gap-3">
               <QuantityStepper :model-value="line.quantity" @update:model-value="cart.setQuantity(line.menuItemId, $event)" />
               <button class="text-sm font-semibold text-gray-300 hover:text-brand" @click="cart.remove(line.menuItemId)">Retirer</button>
@@ -42,11 +43,12 @@ function checkout() {
       <aside class="card h-fit min-w-0 p-6 lg:sticky lg:top-28">
         <h2 class="text-2xl font-semibold">Récapitulatif</h2>
         <dl class="mt-5 space-y-2 text-sm">
-          <div class="flex justify-between"><dt class="text-gray-300">Sous-total HT</dt><dd class="tabular-nums">{{ formatPrice(cart.total.value / 1.1) }}</dd></div>
-          <div class="flex justify-between"><dt class="text-gray-300">TVA (10 %)</dt><dd class="tabular-nums">{{ formatPrice(cart.total.value - cart.total.value / 1.1) }}</dd></div>
-          <div class="flex justify-between border-t border-white/10 pt-3 text-base font-bold"><dt>Total TTC</dt><dd class="text-2xl tabular-nums">{{ formatPrice(cart.total.value) }}</dd></div>
+          <div class="flex justify-between"><dt class="text-gray-300">{{ cart.count.value }} article{{ cart.count.value > 1 ? 's' : '' }}</dt><dd class="tabular-nums">{{ formatPrice(cart.total.value) }}</dd></div>
+          <div class="flex justify-between border-t border-white/10 pt-3 text-base font-bold"><dt>Total</dt><dd class="text-2xl tabular-nums">{{ formatPrice(cart.total.value) }}</dd></div>
         </dl>
-        <button class="btn-primary mt-6 w-full !py-4" @click="checkout"><Icon name="lock" :size="18" /> Passer au paiement</button>
+        <p class="mt-1 text-right text-xs text-gray-400">TVA incluse</p>
+        <p class="mt-4 flex items-center gap-2 text-sm text-gray-300"><Icon name="store" :size="16" class="shrink-0 text-brand" /> À récupérer au restaurant</p>
+        <button class="btn-primary mt-6 w-full !py-4" :disabled="cart.hasUnavailable.value" @click="checkout">Commander</button>
         <button class="mt-3 w-full text-sm font-semibold text-gray-300 hover:text-brand" @click="cart.clear()">Vider le panier</button>
       </aside>
     </div>

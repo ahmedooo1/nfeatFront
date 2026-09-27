@@ -1,112 +1,43 @@
 <script setup lang="ts">
-import { restaurant } from '~/restaurant.config'
-import type { CartLine } from '~/types'
+import type { OrderSummary } from '~/types'
 
+// Retour de la banque après un paiement en ligne avec redirection (3D Secure).
 definePageMeta({ middleware: 'auth', alias: ['/order-success'] })
-useSeoMeta({ title: 'Commande confirmée', robots: 'noindex' })
-
-type Receipt = { orderIds: number[]; total: number; paymentId: string; lines: CartLine[]; at: string }
-const KEY = 'nfeat_last_order'
+useSeoMeta({ title: 'Confirmation', robots: 'noindex' })
 
 const route = useRoute()
 const api = useApi()
 const cart = useCart()
-const { user } = useAuth()
-const receipt = ref<Receipt | null>(null)
 const error = ref('')
-const loading = ref(true)
 
 onMounted(async () => {
   const paymentId = String(route.query.payment_intent ?? '')
-  const saved = sessionStorage.getItem(KEY)
-  if (saved && (!paymentId || JSON.parse(saved).paymentId === paymentId)) {
-    receipt.value = JSON.parse(saved)
-    loading.value = false
-    return
-  }
-  if (!paymentId) {
-    loading.value = false
-    return
-  }
+  if (!paymentId) return navigateTo('/compte/commandes', { replace: true })
   try {
+    const details = JSON.parse(sessionStorage.getItem('nfeat_checkout') || '{}')
+    const res = await api<{ order: OrderSummary }>('/orders', {
+      method: 'POST',
+      body: { pickupAt: 'asap', ...details, paymentMethod: 'card', paymentId },
+    })
+    sessionStorage.removeItem('nfeat_checkout')
     await cart.refresh()
-    const lines = [...cart.lines.value]
-    // Le serveur vérifie auprès de Stripe que ce paiement couvre bien ce panier.
-    const res = await api<{ orderIds: number[]; total: number }>('/orders', { method: 'POST', body: { paymentId } })
-    receipt.value = { ...res, paymentId, lines, at: new Date().toISOString() }
-    sessionStorage.setItem(KEY, JSON.stringify(receipt.value))
-    await cart.refresh()
+    await navigateTo({ path: '/commande/suivi', query: { id: res.order.id, new: 1 } }, { replace: true })
   } catch (e) {
     error.value = apiMessage(e, 'Nous n’avons pas pu confirmer la commande. Si vous avez été débité, contactez-nous avec la référence ci-dessous.')
-  } finally {
-    loading.value = false
   }
-})
-
-const reference = computed(() => (receipt.value ? `#${receipt.value.orderIds.join('-')}` : ''))
-const readyAt = computed(() => {
-  if (!receipt.value) return ''
-  const t = new Date(new Date(receipt.value.at).getTime() + restaurant.pickupMinutes * 60_000)
-  return formatDate(t.toISOString(), { timeStyle: 'short' })
 })
 </script>
 
 <template>
   <div class="container-x max-w-3xl py-12 sm:py-16">
-    <div v-if="loading" class="card p-12 text-center">
-      <div class="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-brand/20 border-t-ember" />
-      <p class="mt-5 text-2xl">Confirmation de votre commande...</p>
-    </div>
-
-    <div v-else-if="error" class="card p-10 text-center">
-      <p class="mt-4 text-2xl">{{ error }}</p>
+    <div v-if="error" class="card p-10 text-center">
+      <p class="text-2xl">{{ error }}</p>
       <p class="mt-3 text-sm text-gray-300">Référence de paiement : <code class="rounded bg-gray-700 px-2 py-1">{{ route.query.payment_intent }}</code></p>
       <NuxtLink to="/contact" class="btn-primary mt-6">Nous contacter</NuxtLink>
     </div>
-
-    <template v-else-if="receipt">
-      <div class="no-print text-center">
-        <span class="mx-auto grid h-20 w-20 place-items-center rounded-full bg-green-600 text-white shadow-xl"><Icon name="check" :size="38" :stroke="2.6" /></span>
-        <h1 class="mt-6 text-3xl font-bold sm:text-4xl">Merci {{ user?.name?.split(' ')[0] }} !</h1>
-        <p class="mt-3 text-lg text-gray-300">Votre commande est confirmée et part en cuisine.</p>
-      </div>
-
-      <!-- Ticket imprimable -->
-      <article class="card relative mt-10 overflow-hidden">
-        <div class="bg-gray-900 px-8 py-6 text-white">
-          <div class="flex items-center justify-between">
-            <BrandMark light />
-            <span class="rounded-full bg-brand px-4 py-1.5 text-lg font-bold text-white">{{ reference }}</span>
-          </div>
-        </div>
-        <div class="grid gap-6 border-b border-dashed border-white/20 p-8 sm:grid-cols-3">
-          <div><p class="label">Prête vers</p><p class="text-3xl font-bold text-brand">{{ readyAt }}</p></div>
-          <div><p class="label">Retrait</p><p class="font-semibold">{{ restaurant.address.city }}</p></div>
-          <div><p class="label">Passée le</p><p class="font-semibold">{{ formatDate(receipt.at) }}</p></div>
-        </div>
-        <ul class="divide-y divide-white/10 px-8">
-          <li v-for="l in receipt.lines" :key="l.menuItemId" class="flex justify-between gap-4 py-3">
-            <span><span class="font-bold">{{ l.quantity }}×</span> {{ l.name }}</span>
-            <span class="tabular-nums">{{ formatPrice(Number(l.price) * l.quantity) }}</span>
-          </li>
-        </ul>
-        <div class="space-y-1 bg-gray-700 px-8 py-6 text-sm">
-          <div class="flex justify-between text-gray-300"><span>dont TVA (10 %)</span><span class="tabular-nums">{{ formatPrice(receipt.total - receipt.total / 1.1) }}</span></div>
-          <div class="flex items-baseline justify-between pt-2"><span class="font-bold">Total payé</span><span class="text-3xl font-bold">{{ formatPrice(receipt.total) }}</span></div>
-          <p class="pt-2 text-xs text-gray-300">Paiement {{ receipt.paymentId }}</p>
-        </div>
-      </article>
-
-      <div class="no-print mt-8 flex flex-wrap justify-center gap-3">
-        <button class="btn-ghost" onclick="window.print()"><Icon name="receipt" :size="18" /> Imprimer le reçu</button>
-        <NuxtLink to="/compte/commandes" class="btn-primary">Mes commandes</NuxtLink>
-        <NuxtLink to="/carte" class="btn-primary">Commander autre chose</NuxtLink>
-      </div>
-    </template>
-
     <div v-else class="card p-12 text-center">
-      <p class="text-2xl">Aucune commande récente.</p>
-      <NuxtLink to="/carte" class="btn-primary mt-6">Voir la carte</NuxtLink>
+      <div class="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-brand/20 border-t-brand" />
+      <p class="mt-5 text-2xl">Confirmation de votre commande...</p>
     </div>
   </div>
 </template>

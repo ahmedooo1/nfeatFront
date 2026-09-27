@@ -45,7 +45,8 @@ function checkout() {
                 <p class="truncate font-semibold">{{ line.name }}</p>
                 <button class="text-gray-300 hover:text-red-400" :aria-label="`Retirer ${line.name}`" @click="cart.remove(line.menuItemId)"><Icon name="trash" :size="16" /></button>
               </div>
-              <p class="text-sm text-gray-300">{{ formatPrice(line.price) }}</p>
+              <p v-if="line.available === false" class="text-sm font-semibold text-red-300">Plus disponible</p>
+              <p v-else class="text-sm text-gray-300">{{ formatPrice(line.price) }}</p>
               <div class="mt-auto flex items-center justify-between">
                 <QuantityStepper :model-value="line.quantity" @update:model-value="cart.setQuantity(line.menuItemId, $event)" />
                 <span class="font-bold tabular-nums">{{ formatPrice(Number(line.price) * line.quantity) }}</span>
@@ -56,10 +57,10 @@ function checkout() {
 
         <footer v-if="cart.lines.value.length" class="border-t border-white/10 p-5">
           <div class="flex items-baseline justify-between">
-            <span class="text-gray-300">Total TTC</span>
+            <span class="text-gray-300">Total</span>
             <span class="text-2xl font-bold">{{ formatPrice(cart.total.value) }}</span>
           </div>
-          <button class="btn-primary mt-4 w-full !py-3" @click="checkout"><Icon name="lock" :size="18" /> Passer au paiement</button>
+          <button class="btn-primary mt-4 w-full !py-3" :disabled="cart.hasUnavailable.value" @click="checkout">Commander</button>
           <NuxtLink to="/panier" class="mt-3 block text-center text-sm text-gray-300 underline hover:text-white">Voir le panier en détail</NuxtLink>
         </footer>
       </aside>

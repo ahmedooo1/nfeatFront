@@ -32,15 +32,19 @@ async function reorder(o: OrderSummary) {
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p class="text-2xl font-semibold">Commande #{{ o.id }}</p>
-            <p class="text-sm text-gray-300">{{ formatDate(o.createdAt) }}</p>
+            <p class="text-sm text-gray-300 first-letter:uppercase">{{ o.pickupAt ? `Retrait ${formatPickup(o.pickupAt)}` : formatDate(o.createdAt) }}</p>
           </div>
           <div class="flex items-center gap-3">
-            <span class="rounded-full px-3 py-1 text-xs font-bold" :class="o.isPaid ? 'bg-green-500/20 text-green-300' : 'bg-brand/20 text-brand'">{{ o.isPaid ? 'Payée' : 'En attente' }}</span>
+            <span class="rounded-full px-3 py-1 text-xs font-bold" :class="orderStatus[o.status]?.tone">{{ orderStatus[o.status]?.label }}</span>
             <span class="text-2xl font-bold">{{ formatPrice(o.total) }}</span>
           </div>
         </div>
         <p class="mt-4 text-sm text-gray-100">{{ o.items.map((i) => `${i.quantity}× ${i.name}`).join(', ') }}</p>
-        <button class="btn-ghost mt-5 !py-2.5" @click="reorder(o)"><Icon name="plus" :size="16" /> Commander à nouveau</button>
+        <p v-if="o.paymentMethod === 'onsite' && !o.isPaid && o.status !== 'cancelled'" class="mt-1 text-sm text-brand">À régler au retrait</p>
+        <div class="mt-5 flex flex-wrap gap-3">
+          <NuxtLink :to="{ path: '/commande/suivi', query: { id: o.id } }" :class="isActiveOrder(o.status) ? 'btn-primary' : 'btn-ghost'" class="!py-2.5">{{ isActiveOrder(o.status) ? 'Suivre la commande' : 'Détails' }}</NuxtLink>
+          <button class="btn-ghost !py-2.5" @click="reorder(o)"><Icon name="plus" :size="16" /> Commander à nouveau</button>
+        </div>
       </li>
     </ul>
   </div>
