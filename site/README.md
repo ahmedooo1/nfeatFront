@@ -36,5 +36,5 @@ npm run generate   # site statique dans .output/public
 ## Déploiement
 
 `.github/workflows/deploy.yml` : à chaque push sur `main` (dossier `site/`) et chaque
-nuit, GitHub construit le site et l'envoie dans `/var/www/nuxt-app/dist`. La version
+nuit, GitHub construit le site et l'envoie dans `/var/www/nfeat/dist`. La version
 précédente est gardée dans `dist.previous` pour un retour arrière immédiat.

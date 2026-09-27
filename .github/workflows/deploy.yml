@@ -68,7 +68,7 @@ jobs:
           HOST: ${{ secrets.SERVER_IP }}
           PORT: ${{ secrets.API_SSH_PORT }}
           REMOTE_USER: ${{ secrets.SERVER_USER }}
-          DEST: /var/www/nuxt-app/dist
+          DEST: /var/www/nfeat/dist
         run: |
           set -euo pipefail
           mkdir -p ~/.ssh
