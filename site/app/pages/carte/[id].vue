@@ -114,8 +114,8 @@ useHead(() => ({
         <p class="mt-4 whitespace-pre-line leading-relaxed text-gray-100">{{ dish.description }}</p>
         <div class="mt-auto flex flex-wrap items-center gap-3 pt-8">
           <QuantityStepper v-model="quantity" />
-          <button class="btn-add flex-1 !rounded-lg !py-3" :disabled="adding" @click="add">
-            <Icon name="bag" :size="18" /> Ajouter au panier, {{ formatPrice(Number(dish.price) * quantity) }}
+          <button class="btn-add flex-1 !rounded-lg !py-3 text-lg" :disabled="adding" :aria-label="`Ajouter ${dish.name} au panier`" @click="add">
+            <Icon name="bag" :size="20" /> {{ formatPrice(Number(dish.price) * quantity) }}
           </button>
         </div>
       </div>
