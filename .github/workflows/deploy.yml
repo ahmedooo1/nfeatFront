@@ -40,7 +40,7 @@ jobs:
         run: npx nuxt generate
       - name: Contrôle du rendu
         run: |
-          grep -q 'Saveurs' .output/public/index.html
+          grep -q 'Bienvenue chez' .output/public/index.html
           test -f .output/public/200.html
           test -f .output/public/sitemap.xml
           echo "Pages de plats pré-rendues : $(ls .output/public/carte | grep -cE '^[0-9]+$')"
@@ -84,6 +84,6 @@ jobs:
         run: |
           set -euo pipefail
           sleep 3
-          curl -fsS https://nfeat.aaweb.fr/ | grep -q 'Saveurs'
+          curl -fsS https://nfeat.aaweb.fr/ | grep -q 'Bienvenue chez'
           curl -fsS -o /dev/null https://nfeat.aaweb.fr/carte
           curl -fsS https://nfeat.aaweb.fr/sitemap.xml | grep -q '<urlset'
