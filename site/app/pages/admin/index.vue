@@ -23,7 +23,7 @@ onMounted(load)
 
 const { connected, sound } = useOrderStream((o) => {
   live.value.unshift(o)
-  toast.success(`Nouvelle commande de ${o.user.name ?? o.user.email} · ${formatPrice(o.totalPrice)}`)
+  toast.success(`Nouvelle commande de ${o.user.name ?? o.user.email}, ${formatPrice(o.totalPrice)}`)
   load()
 })
 
@@ -61,16 +61,15 @@ const topDishes = computed(() => {
   <div>
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
-        <p class="eyebrow">Espace pro</p>
-        <h1 class="mt-2 font-display text-4xl font-semibold tracking-tight">Tableau de bord</h1>
+        <h1 class="mt-2 text-4xl font-bold">Tableau de bord</h1>
       </div>
       <div class="flex items-center gap-2">
-        <span class="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold shadow-sm">
-          <span class="h-2.5 w-2.5 rounded-full" :class="connected ? 'bg-emerald-500' : 'bg-sand'" />
+        <span class="flex items-center gap-2 rounded-full bg-tile px-4 py-2 text-xs font-bold">
+          <span class="h-2.5 w-2.5 rounded-full" :class="connected ? 'bg-green-500/200' : 'bg-sand'" />
           {{ connected ? 'Commandes en direct' : 'Direct indisponible' }}
         </span>
-        <button class="grid h-9 w-9 place-items-center rounded-full bg-white shadow-sm" :aria-label="sound ? 'Couper le son' : 'Activer le son'" @click="sound = !sound">
-          <Icon name="bell" :size="16" :class="sound ? 'text-ember' : 'text-muted'" />
+        <button class="grid h-9 w-9 place-items-center rounded-full bg-tile" :aria-label="sound ? 'Couper le son' : 'Activer le son'" @click="sound = !sound">
+          <Icon name="bell" :size="16" :class="sound ? 'text-brand' : 'text-gray-300'" />
         </button>
       </div>
     </div>
@@ -78,52 +77,52 @@ const topDishes = computed(() => {
     <div class="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <div class="card p-6">
         <p class="label">Aujourd’hui</p>
-        <p class="font-display text-4xl font-bold">{{ formatPrice(today.revenue) }}</p>
-        <p class="mt-1 text-sm text-muted">{{ today.count }} commande{{ today.count > 1 ? 's' : '' }}</p>
+        <p class="text-4xl font-bold">{{ formatPrice(today.revenue) }}</p>
+        <p class="mt-1 text-sm text-gray-300">{{ today.count }} commande{{ today.count > 1 ? 's' : '' }}</p>
       </div>
-      <div class="card p-6"><p class="label">Commandes</p><p class="font-display text-4xl font-bold">{{ stats?.orderCount ?? '—' }}</p><p class="mt-1 text-sm text-muted">{{ stats?.paidOrdersCount ?? 0 }} payées</p></div>
-      <div class="card p-6"><p class="label">Panier moyen</p><p class="font-display text-4xl font-bold">{{ formatPrice(average) }}</p><p class="mt-1 text-sm text-muted">sur les 50 dernières</p></div>
-      <div class="card p-6"><p class="label">Clients</p><p class="font-display text-4xl font-bold">{{ stats?.userCount ?? '—' }}</p><p class="mt-1 text-sm text-muted">comptes créés</p></div>
+      <div class="card p-6"><p class="label">Commandes</p><p class="text-4xl font-bold">{{ stats?.orderCount ?? '-' }}</p><p class="mt-1 text-sm text-gray-300">{{ stats?.paidOrdersCount ?? 0 }} payées</p></div>
+      <div class="card p-6"><p class="label">Panier moyen</p><p class="text-4xl font-bold">{{ formatPrice(average) }}</p><p class="mt-1 text-sm text-gray-300">sur les 50 dernières</p></div>
+      <div class="card p-6"><p class="label">Clients</p><p class="text-4xl font-bold">{{ stats?.userCount ?? '-' }}</p><p class="mt-1 text-sm text-gray-300">comptes créés</p></div>
     </div>
 
     <div class="mt-6 grid gap-6 xl:grid-cols-3">
       <section class="card p-6 xl:col-span-2">
-        <h2 class="font-display text-2xl font-semibold">Ventes des 7 derniers jours</h2>
+        <h2 class="text-2xl font-semibold">Ventes des 7 derniers jours</h2>
         <div class="mt-10 flex h-56 items-end gap-3">
           <div v-for="d in week" :key="d.key" class="flex h-full flex-1 flex-col items-center gap-2">
             <div class="relative w-full flex-1">
               <div class="absolute inset-x-0 bottom-0 flex flex-col items-center" :style="{ height: `${Math.max(d.pct, 3)}%` }">
-                <span class="absolute -top-6 whitespace-nowrap text-xs font-bold tabular-nums text-muted">{{ d.total ? formatPrice(d.total) : '' }}</span>
-                <div class="h-full w-full rounded-t-xl bg-gradient-to-t from-ember to-saffron" :class="d.total ? '' : 'opacity-20'" />
+                <span class="absolute -top-6 whitespace-nowrap text-xs font-bold tabular-nums text-gray-300">{{ d.total ? formatPrice(d.total) : '' }}</span>
+                <div class="h-full w-full rounded-t-xl bg-gradient-to-t from-brand-dark to-brand" :class="d.total ? '' : 'opacity-20'" />
               </div>
             </div>
-            <span class="text-xs font-semibold capitalize text-muted">{{ d.label }}</span>
+            <span class="text-xs font-semibold capitalize text-gray-300">{{ d.label }}</span>
           </div>
         </div>
       </section>
       <section class="card p-6">
-        <h2 class="font-display text-2xl font-semibold">Plats les plus vendus</h2>
+        <h2 class="text-2xl font-semibold">Plats les plus vendus</h2>
         <ol class="mt-5 space-y-3">
           <li v-for="([name, qty], i) in topDishes" :key="name" class="flex items-center gap-3">
-            <span class="grid h-8 w-8 place-items-center rounded-full bg-cream font-bold">{{ i + 1 }}</span>
+            <span class="grid h-8 w-8 place-items-center rounded-full bg-gray-700 font-bold">{{ i + 1 }}</span>
             <span class="flex-1 truncate font-semibold">{{ name }}</span>
-            <span class="text-sm text-muted">{{ qty }} vendu{{ qty > 1 ? 's' : '' }}</span>
+            <span class="text-sm text-gray-300">{{ qty }} vendu{{ qty > 1 ? 's' : '' }}</span>
           </li>
-          <li v-if="!topDishes.length" class="text-sm text-muted">Pas encore de ventes.</li>
+          <li v-if="!topDishes.length" class="text-sm text-gray-300">Pas encore de ventes.</li>
         </ol>
       </section>
     </div>
 
     <section class="card mt-6 overflow-hidden">
       <div class="flex items-center justify-between p-6">
-        <h2 class="font-display text-2xl font-semibold">Dernières commandes</h2>
-        <NuxtLink to="/admin/commandes" class="text-sm font-bold text-ember hover:underline">Tout voir</NuxtLink>
+        <h2 class="text-2xl font-semibold">Dernières commandes</h2>
+        <NuxtLink to="/admin/commandes" class="text-sm font-bold text-brand hover:underline">Tout voir</NuxtLink>
       </div>
       <div v-if="live.length" class="mx-6 mb-4 space-y-2">
-        <div v-for="o in live" :key="`live-${o.id}`" class="flex items-center gap-3 rounded-2xl bg-emerald-50 px-4 py-3 text-sm">
-          <span class="h-2.5 w-2.5 animate-pulse rounded-full bg-emerald-500" />
+        <div v-for="o in live" :key="`live-${o.id}`" class="flex items-center gap-3 rounded-lg bg-green-500/20 px-4 py-3 text-sm">
+          <span class="h-2.5 w-2.5 animate-pulse rounded-full bg-green-500/200" />
           <span class="font-bold">{{ o.user.name ?? o.user.email }}</span>
-          <span class="flex-1 truncate text-muted">{{ o.details }}</span>
+          <span class="flex-1 truncate text-gray-300">{{ o.details }}</span>
           <span class="font-bold">{{ formatPrice(o.totalPrice) }}</span>
         </div>
       </div>

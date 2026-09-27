@@ -5,15 +5,14 @@ onMounted(() => consent.init())
 
 <template>
   <Transition name="fade">
-    <div v-if="consent.bannerOpen.value" class="no-print fixed bottom-4 left-4 z-[55] max-w-sm rounded-3xl border border-ink/10 bg-white p-5 shadow-2xl" role="dialog" aria-label="Cookies">
-      <p class="font-display text-lg font-semibold">Un cookie ? 🍪</p>
-      <p class="mt-1 text-sm text-muted">
-        Nous mesurons l'audience du site (Google Analytics) uniquement si vous l'acceptez. Les cookies nécessaires au panier et à la connexion restent actifs.
-        <NuxtLink to="/confidentialite" class="font-semibold text-ink underline">En savoir plus</NuxtLink>
+    <div v-if="consent.bannerOpen.value" class="no-print fixed inset-x-4 bottom-4 z-[55] mx-auto flex max-w-3xl flex-col gap-4 rounded-lg bg-gray-900 p-5 shadow-2xl sm:flex-row sm:items-center" role="dialog" aria-label="Cookies">
+      <p class="flex-1 text-sm text-gray-200">
+        Ce site utilise des cookies pour mesurer l’audience, uniquement si vous l’acceptez.
+        <NuxtLink to="/confidentialite" class="underline">Politique de gestion des cookies</NuxtLink>
       </p>
-      <div class="mt-4 flex gap-2">
-        <button class="btn-ghost flex-1 !py-2.5" @click="consent.refuse()">Refuser</button>
-        <button class="btn-dark flex-1 !py-2.5" @click="consent.accept()">Accepter</button>
+      <div class="flex gap-2">
+        <button class="rounded bg-green-500 px-4 py-2 font-semibold hover:bg-green-600" @click="consent.accept()">Accepter</button>
+        <button class="rounded bg-red-500 px-4 py-2 font-semibold hover:bg-red-600" @click="consent.refuse()">Refuser</button>
       </div>
     </div>
   </Transition>

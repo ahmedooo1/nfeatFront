@@ -11,27 +11,26 @@ const isActive = (item: { to: string; exact?: boolean }) => (item.exact ? route.
 </script>
 
 <template>
-  <div class="min-h-dvh bg-cream lg:grid lg:grid-cols-[260px_1fr]">
-    <aside class="bg-ink text-cream">
+  <div class="min-h-dvh bg-night lg:grid lg:grid-cols-[260px_1fr]">
+    <aside class="bg-gray-900 text-white">
       <div class="lg:sticky lg:top-0 lg:h-dvh">
       <div class="flex items-center justify-between px-6 py-5 lg:block">
         <BrandMark light />
-        <p class="hidden text-[11px] font-bold uppercase tracking-[.25em] text-saffron lg:mt-2 lg:block">Espace pro</p>
       </div>
       <nav class="flex gap-1 overflow-x-auto px-3 pb-3 scrollbar-none lg:flex-col lg:px-4" aria-label="Administration">
         <NuxtLink
           v-for="item in nav"
           :key="item.to"
           :to="item.to"
-          class="flex shrink-0 items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition"
-          :class="isActive(item) ? 'bg-white/10 text-white' : 'text-cream/60 hover:bg-white/5 hover:text-cream'"
+          class="flex shrink-0 items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold transition"
+          :class="isActive(item) ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
         >
           <Icon :name="item.icon" :size="18" /> {{ item.label }}
         </NuxtLink>
       </nav>
       <div class="hidden border-t border-white/10 p-4 lg:absolute lg:inset-x-0 lg:bottom-0 lg:block">
-        <NuxtLink to="/" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm text-cream/60 hover:text-cream"><Icon name="back" :size="18" /> Voir le site</NuxtLink>
-        <button class="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm text-cream/60 hover:text-cream" @click="logout"><Icon name="logout" :size="18" /> {{ user?.name }}</button>
+        <NuxtLink to="/" class="flex items-center gap-3 rounded-lg px-4 py-3 text-sm text-gray-400 hover:text-white"><Icon name="back" :size="18" /> Voir le site</NuxtLink>
+        <button class="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm text-gray-400 hover:text-white" @click="logout"><Icon name="logout" :size="18" /> {{ user?.name }}</button>
       </div>
       </div>
     </aside>

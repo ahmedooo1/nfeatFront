@@ -87,14 +87,14 @@ async function remove(d: Dish) {
   <div>
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
-        <h1 class="font-display text-4xl font-semibold tracking-tight">La carte</h1>
-        <p class="mt-1 text-muted">{{ dishes.length }} plat(s) en ligne</p>
+        <h1 class="text-4xl font-bold">La carte</h1>
+        <p class="mt-1 text-gray-300">{{ dishes.length }} plat(s) en ligne</p>
       </div>
       <div class="flex gap-2">
         <label class="relative">
           <span class="sr-only">Rechercher</span>
-          <Icon name="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-muted" :size="16" />
-          <input v-model="query" type="search" class="field !rounded-full !py-2.5 !pl-10" placeholder="Rechercher…">
+          <Icon name="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" :size="16" />
+          <input v-model="query" type="search" class="field !rounded-full !py-2.5 !pl-10" placeholder="Rechercher...">
         </label>
         <button class="btn-primary" @click="start()"><Icon name="plus" :size="18" /> Nouveau plat</button>
       </div>
@@ -103,32 +103,32 @@ async function remove(d: Dish) {
     <div v-if="loading" class="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3"><div v-for="i in 6" :key="i" class="skeleton h-28" /></div>
     <div v-else class="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       <article v-for="d in filtered" :key="d.id" class="card flex gap-4 p-3">
-        <div class="h-24 w-24 shrink-0 overflow-hidden rounded-2xl"><DishImage :src="d.image_url" :alt="d.name" :category="d.category?.title" /></div>
+        <div class="h-24 w-24 shrink-0 overflow-hidden rounded-lg"><DishImage :src="d.image_url" :alt="d.name" :category="d.category?.title" /></div>
         <div class="flex min-w-0 flex-1 flex-col py-1">
           <p class="truncate font-semibold">{{ d.name }}</p>
-          <p class="text-xs text-muted">{{ d.category?.title ?? 'Sans catégorie' }}</p>
-          <p class="mt-auto font-display text-lg font-bold text-ember">{{ formatPrice(d.price) }}</p>
+          <p class="text-xs text-gray-300">{{ d.category?.title ?? 'Sans catégorie' }}</p>
+          <p class="mt-auto text-lg font-bold text-brand">{{ formatPrice(d.price) }}</p>
         </div>
         <div class="flex flex-col gap-1">
-          <button class="grid h-9 w-9 place-items-center rounded-full hover:bg-cream" aria-label="Modifier" @click="start(d)"><Icon name="edit" :size="16" /></button>
-          <button class="grid h-9 w-9 place-items-center rounded-full text-muted hover:bg-ember/10 hover:text-ember" aria-label="Supprimer" @click="remove(d)"><Icon name="trash" :size="16" /></button>
+          <button class="grid h-9 w-9 place-items-center rounded-full hover:bg-white/10" aria-label="Modifier" @click="start(d)"><Icon name="edit" :size="16" /></button>
+          <button class="grid h-9 w-9 place-items-center rounded-full text-gray-300 hover:bg-white/10 hover:text-brand" aria-label="Supprimer" @click="remove(d)"><Icon name="trash" :size="16" /></button>
         </div>
       </article>
     </div>
 
     <Teleport to="body">
       <Transition name="fade">
-        <div v-if="open" class="fixed inset-0 z-[70] grid place-items-center overflow-y-auto bg-ink/50 p-4 backdrop-blur-sm" @click.self="open = false">
+        <div v-if="open" class="fixed inset-0 z-[70] grid place-items-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm" @click.self="open = false">
           <form class="card w-full max-w-2xl p-6 sm:p-8" @submit.prevent="save">
             <div class="flex items-center justify-between">
-              <h2 class="font-display text-3xl font-semibold">{{ editing ? 'Modifier le plat' : 'Nouveau plat' }}</h2>
-              <button type="button" class="grid h-10 w-10 place-items-center rounded-full hover:bg-ink/5" aria-label="Fermer" @click="open = false"><Icon name="x" /></button>
+              <h2 class="text-3xl font-semibold">{{ editing ? 'Modifier le plat' : 'Nouveau plat' }}</h2>
+              <button type="button" class="grid h-10 w-10 place-items-center rounded-full hover:bg-white/10" aria-label="Fermer" @click="open = false"><Icon name="x" /></button>
             </div>
             <div class="mt-6 grid gap-6 sm:grid-cols-5">
-              <label class="group relative block aspect-square cursor-pointer overflow-hidden rounded-3xl border-2 border-dashed border-ink/15 sm:col-span-2">
+              <label class="group relative block aspect-square cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-white/20 sm:col-span-2">
                 <img v-if="form.preview" :src="form.preview" alt="" class="h-full w-full object-cover">
-                <span v-else class="grid h-full place-items-center p-4 text-center text-sm text-muted"><span><Icon name="image" :size="28" class="mx-auto" /><br>Ajouter une photo</span></span>
-                <span class="absolute inset-x-3 bottom-3 rounded-full bg-ink/70 py-2 text-center text-xs font-bold text-cream opacity-0 transition group-hover:opacity-100">Changer la photo</span>
+                <span v-else class="grid h-full place-items-center p-4 text-center text-sm text-gray-300"><span><Icon name="image" :size="28" class="mx-auto" /><br>Ajouter une photo</span></span>
+                <span class="absolute inset-x-3 bottom-3 rounded-full bg-gray-900/70 py-2 text-center text-xs font-bold text-white opacity-0 transition group-hover:opacity-100">Changer la photo</span>
                 <input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" @change="onFile">
               </label>
               <div class="space-y-4 sm:col-span-3">
@@ -147,7 +147,7 @@ async function remove(d: Dish) {
             </div>
             <div class="mt-6 flex justify-end gap-2">
               <button type="button" class="btn-ghost" @click="open = false">Annuler</button>
-              <button class="btn-primary" :disabled="saving">{{ saving ? 'Enregistrement…' : 'Enregistrer' }}</button>
+              <button class="btn-primary" :disabled="saving">{{ saving ? 'Enregistrement...' : 'Enregistrer' }}</button>
             </div>
           </form>
         </div>

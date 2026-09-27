@@ -21,9 +21,9 @@ export function useOpeningHours() {
     const minutes = paris.getHours() * 60 + paris.getMinutes()
     const today = restaurant.hours.find((h) => (h.days as readonly number[]).includes(day))
     if (today && minutes >= toMinutes(today.open) && minutes < toMinutes(today.close)) {
-      return { open: true, label: `Ouvert · jusqu’à ${today.close.replace(':', 'h')}` }
+      return { open: true, label: `Ouvert jusqu’à ${formatHour(today.close)}` }
     }
-    if (today && minutes < toMinutes(today.open)) return { open: false, label: `Fermé · ouvre à ${today.open.replace(':', 'h')}` }
+    if (today && minutes < toMinutes(today.open)) return { open: false, label: `Fermé, ouverture à ${formatHour(today.open)}` }
     return { open: false, label: 'Fermé pour aujourd’hui' }
   })
 

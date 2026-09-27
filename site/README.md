@@ -7,8 +7,8 @@ Nouvelle version du site (Nuxt 4, Vue 3, Tailwind CSS 4), connectée à l'API Sy
 
 1. `app/restaurant.config.ts` : nom, accroche, cuisine, adresse, horaires, réseaux,
    mention « site à vendre ».
-2. `app/assets/css/main.css`, bloc `@theme` : couleurs et polices.
-3. `public/images/` : photo principale (`restaurant.jpg`).
+2. `app/assets/css/main.css`, bloc `@theme` : couleurs.
+3. `public/images/` : logo (`logo.png`), photo de la salle (`restaurant.jpg`), coup de pinceau des titres (`brush.png`).
 4. Variables au build (facultatives) : `NUXT_PUBLIC_API_BASE`, `NUXT_PUBLIC_STRIPE_KEY`
    (clé publique `pk_live_…`), `NUXT_PUBLIC_GA_ID`.
 
@@ -21,7 +21,7 @@ Nouvelle version du site (Nuxt 4, Vue 3, Tailwind CSS 4), connectée à l'API Sy
   son), gestion de la carte avec photos, gestion des administrateurs.
 - Référencement : pages publiques pré-rendues, données structurées `Restaurant` et
   `MenuItem`, sitemap, `lang="fr"`.
-- RGPD : polices hébergées sur le site, Google Analytics seulement après accord.
+- RGPD : Google Analytics seulement après accord.
 
 ## Développement
 

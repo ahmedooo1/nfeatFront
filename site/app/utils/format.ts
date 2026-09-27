@@ -8,20 +8,8 @@ export const formatDate = (iso: string, opts: Intl.DateTimeFormatOptions = { dat
 export const initials = (name?: string | null) =>
   (name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]!.toUpperCase()).join('')
 
-/** Emoji de repli quand un plat n'a pas encore de photo. */
-export function dishEmoji(text = ''): string {
-  const t = text.toLowerCase()
-  const table: [RegExp, string][] = [
-    [/dessert|baklava|gâteau|gateau|kunafa|knafeh|glace/, '🍯'],
-    [/boisson|jus|thé|the |café|cafe|limonade|ayran/, '🫖'],
-    [/salade|taboul|fattouch/, '🥗'],
-    [/soupe|chorba|lentille/, '🍲'],
-    [/falafel|houmous|hummus|mezze|mutabal|entrée|entree/, '🧆'],
-    [/sandwich|wrap|chawarma|shawarma|kebab|durum/, '🌯'],
-    [/pizza|manakish|mana'?eesh/, '🫓'],
-    [/burger/, '🍔'],
-    [/poulet|chicken|brochette|grill|agneau|kefta|viande/, '🍢'],
-    [/riz|mandi|kabsa|maqlouba/, '🍛'],
-  ]
-  return table.find(([re]) => re.test(t))?.[1] ?? '🍽️'
+/** « 09:00 » devient « 9h », « 11:30 » devient « 11h30 ». */
+export const formatHour = (hhmm: string) => {
+  const [h, m] = hhmm.split(':')
+  return `${Number(h)}h${m === '00' ? '' : m}`
 }

@@ -54,22 +54,21 @@ async function save() {
   <div class="container-x max-w-4xl py-12 sm:py-16">
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
-        <p class="eyebrow">Espace client</p>
-        <h1 class="mt-3 font-display text-5xl font-semibold tracking-tight">Mon compte</h1>
+        <h1 class="mt-3 text-3xl font-bold sm:text-4xl">Mon compte</h1>
       </div>
       <NuxtLink to="/compte/commandes" class="btn-ghost"><Icon name="receipt" :size="18" /> Mes commandes</NuxtLink>
     </div>
 
     <form class="card mt-10 grid gap-8 p-6 sm:p-10 md:grid-cols-3" @submit.prevent="save">
       <div class="flex flex-col items-center text-center">
-        <label class="group relative block h-32 w-32 cursor-pointer overflow-hidden rounded-full bg-saffron/30 ring-4 ring-cream">
+        <label class="group relative block h-32 w-32 cursor-pointer overflow-hidden rounded-full bg-brand ring-4 ring-gray-800">
           <img v-if="preview" :src="preview" alt="Photo de profil" class="h-full w-full object-cover">
-          <span v-else class="grid h-full w-full place-items-center font-display text-4xl font-bold">{{ initials(user?.name) }}</span>
-          <span class="absolute inset-0 grid place-items-center bg-ink/50 text-cream opacity-0 transition group-hover:opacity-100"><Icon name="image" /></span>
+          <span v-else class="grid h-full w-full place-items-center text-4xl font-bold">{{ initials(user?.name) }}</span>
+          <span class="absolute inset-0 grid place-items-center bg-black/60 text-white opacity-0 transition group-hover:opacity-100"><Icon name="image" /></span>
           <input type="file" accept="image/*" class="sr-only" @change="onFile">
         </label>
-        <p class="mt-4 font-display text-xl font-semibold">{{ user?.name }}</p>
-        <p class="text-sm text-muted">{{ user?.email }}</p>
+        <p class="mt-4 text-xl font-semibold">{{ user?.name }}</p>
+        <p class="text-sm text-gray-300">{{ user?.email }}</p>
       </div>
 
       <div class="space-y-5 md:col-span-2">
@@ -82,15 +81,15 @@ async function save() {
           <input id="new-password" v-model="form.plainPassword" type="password" class="field" minlength="8" autocomplete="new-password" placeholder="Laisser vide pour le conserver">
         </div>
         <Transition name="fade">
-          <div v-if="needsCurrent" class="rounded-2xl bg-saffron/15 p-4">
+          <div v-if="needsCurrent" class="rounded-lg bg-brand/15 p-4">
             <label class="label" for="current-password">Mot de passe actuel</label>
             <input id="current-password" v-model="form.currentPassword" type="password" class="field" autocomplete="current-password" required>
-            <p class="mt-2 text-xs text-muted">Par sécurité, il est demandé pour changer d’e-mail ou de mot de passe.</p>
+            <p class="mt-2 text-xs text-gray-300">Par sécurité, il est demandé pour changer d’e-mail ou de mot de passe.</p>
           </div>
         </Transition>
         <div class="flex flex-wrap justify-between gap-3 pt-2">
           <button type="button" class="btn-ghost" @click="logout"><Icon name="logout" :size="18" /> Se déconnecter</button>
-          <button class="btn-primary" :disabled="saving">{{ saving ? 'Enregistrement…' : 'Enregistrer' }}</button>
+          <button class="btn-primary" :disabled="saving">{{ saving ? 'Enregistrement...' : 'Enregistrer' }}</button>
         </div>
       </div>
     </form>

@@ -49,7 +49,7 @@ export default defineNuxtConfig({
       titleTemplate: `%s · ${restaurant.name}`,
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
-        { name: 'theme-color', content: '#16110d' },
+        { name: 'theme-color', content: '#1f2937' },
         { name: 'format-detection', content: 'telephone=no' },
         { property: 'og:site_name', content: restaurant.name },
         { property: 'og:type', content: 'restaurant.restaurant' },
@@ -60,12 +60,10 @@ export default defineNuxtConfig({
         { name: 'google-site-verification', content: 'CaHBqVBh43sP97d6KLHp9S9loBe1uogXIhTB2qr7Uc0' },
       ],
       link: [
-        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
-        { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
+        { rel: 'icon', type: 'image/png', href: '/images/logo.png' },
+        { rel: 'apple-touch-icon', href: '/images/logo.png' },
         { rel: 'preconnect', href: apiBase },
       ],
-      // Sans JavaScript, les blocs animés restent visibles.
-      noscript: [{ innerHTML: '<style>.reveal{opacity:1!important;transform:none!important}</style>' }],
     },
   },
 })

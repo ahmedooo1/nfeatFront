@@ -17,29 +17,21 @@ async function add() {
 </script>
 
 <template>
-  <article class="group card relative flex flex-col overflow-hidden transition duration-300 hover:-translate-y-1 hover:shadow-[0_30px_60px_-35px_rgba(22,17,13,.55)]">
-    <NuxtLink :to="`/carte/${dish.id}`" class="relative block aspect-[4/3]" :aria-label="dish.name">
-      <DishImage :src="dish.image_url" :alt="dish.name" :category="dish.category?.title" :eager="eager" />
-      <span v-if="dish.category" class="absolute left-3 top-3 rounded-full bg-cream/90 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-ink backdrop-blur">
-        {{ dish.category.title }}
-      </span>
+  <article class="card flex flex-col overflow-hidden text-left transition duration-300 hover:scale-[1.03]">
+    <NuxtLink :to="`/carte/${dish.id}`" class="block h-48" :aria-label="dish.name">
+      <DishImage :src="dish.image_url" :alt="dish.name" :eager="eager" />
     </NuxtLink>
-    <div class="flex flex-1 flex-col p-5">
-      <div class="flex items-start justify-between gap-3">
-        <h3 class="font-display text-xl font-semibold leading-tight">
-          <NuxtLink :to="`/carte/${dish.id}`" class="after:absolute after:inset-0 after:content-['']">{{ dish.name }}</NuxtLink>
-        </h3>
-        <span class="shrink-0 font-display text-lg font-bold text-ember">{{ formatPrice(dish.price) }}</span>
+    <div class="flex flex-1 flex-col p-4">
+      <h3 class="text-xl font-semibold"><NuxtLink :to="`/carte/${dish.id}`" class="hover:text-brand">{{ dish.name }}</NuxtLink></h3>
+      <p class="mt-2 line-clamp-2 text-sm text-gray-200">{{ dish.description }}</p>
+      <NuxtLink :to="`/carte/${dish.id}`" class="mt-1 text-sm text-brand underline">Voir plus</NuxtLink>
+      <div class="mt-auto flex items-center justify-between pt-4">
+        <p class="text-lg font-bold">{{ formatPrice(dish.price) }}</p>
+        <span class="flex items-center gap-1 text-xs text-gray-300"><Icon name="chat" :size="14" /> {{ dish.commentCount }}</span>
       </div>
-      <p class="mt-2 line-clamp-2 text-sm text-muted">{{ dish.description }}</p>
-      <div class="mt-auto flex items-center justify-between pt-5">
-        <span class="flex items-center gap-1.5 text-xs font-semibold text-muted">
-          <Icon name="chat" :size="14" /> {{ dish.commentCount }} avis
-        </span>
-        <button class="btn-dark relative z-10 !px-4 !py-2.5" :disabled="adding" @click="add">
-          <Icon :name="adding ? 'check' : 'plus'" :size="16" /> Ajouter
-        </button>
-      </div>
+      <button class="btn-add mt-3 w-full !rounded-lg" :disabled="adding" @click="add">
+        <Icon :name="adding ? 'check' : 'bag'" :size="18" /> Ajouter au panier
+      </button>
     </div>
   </article>
 </template>
