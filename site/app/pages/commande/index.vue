@@ -9,7 +9,7 @@ useSeoMeta({ title: 'Finaliser la commande', robots: 'noindex' })
 const { public: config } = useRuntimeConfig()
 const api = useApi()
 const cart = useCart()
-const { user } = useAuth()
+const { user, fetchUser } = useAuth()
 
 const info = ref<RestaurantStatus | null>(null)
 const state = ref<'loading' | 'ready' | 'sending' | 'empty' | 'closed' | 'error'>('loading')
@@ -31,7 +31,8 @@ async function loadInfo() {
 }
 
 onMounted(async () => {
-  phone.value = localStorage.getItem('nfeat_phone') ?? ''
+  await fetchUser()
+  phone.value = user.value?.phone || localStorage.getItem('nfeat_phone') || ''
   try {
     await cart.refresh()
     if (!cart.lines.value.length) {
@@ -59,6 +60,7 @@ const slotsByDay = computed(() => {
   }
   return [...groups.entries()]
 })
+const mustVerify = computed(() => !!info.value?.emailVerification && user.value?.emailVerified === false)
 const unavailable = computed(() => cart.lines.value.filter((l) => l.available === false))
 const phoneValid = computed(() => /^\+?[0-9 .()-]{8,20}$/.test(phone.value.trim()) && (phone.value.match(/\d/g)?.length ?? 0) >= 8)
 
@@ -127,6 +129,7 @@ async function submit() {
     await place(paymentIntent.id)
   } catch (e) {
     error.value = apiMessage(e, e instanceof Error ? e.message : 'La commande n’a pas pu être envoyée.')
+    await fetchUser()
     // Créneau expiré entre-temps, plat devenu indisponible : on remet à jour.
     await loadInfo().catch(() => {})
     await cart.refresh().catch(() => {})
@@ -158,6 +161,7 @@ const total = computed(() => cart.total.value)
 
     <form v-else class="mt-10 grid gap-8 lg:grid-cols-5" @submit.prevent="submit">
       <div class="min-w-0 space-y-6 lg:col-span-3">
+        <VerifyEmailNotice v-if="mustVerify" />
         <section class="card p-6 sm:p-8">
           <h2 class="flex items-center gap-2 text-2xl font-semibold"><Icon name="store" :size="22" class="text-brand" /> Retrait au restaurant</h2>
           <p v-if="info && !info.openNow" class="mt-2 text-sm text-gray-300">Le restaurant est fermé en ce moment, votre commande sera préparée à la réouverture.</p>
@@ -245,7 +249,7 @@ const total = computed(() => cart.total.value)
         </p>
         <p v-if="error" class="mt-5 rounded-lg bg-red-500/20 px-4 py-3 text-sm text-red-200" role="alert">{{ error }}</p>
 
-        <button class="btn-primary mt-6 w-full !py-4 text-base" :disabled="state === 'sending' || !!unavailable.length || (method === 'card' && !stripeReady)">
+        <button class="btn-primary mt-6 w-full !py-4 text-base" :disabled="state === 'sending' || mustVerify || !!unavailable.length || (method === 'card' && !stripeReady)">
           <template v-if="state === 'sending'">Envoi en cours...</template>
           <template v-else-if="method === 'card'">Payer {{ formatPrice(amount || total) }}</template>
           <template v-else>Valider la commande</template>

@@ -15,7 +15,7 @@ export default defineNuxtConfig({
     preset: 'static',
     prerender: {
       crawlLinks: true,
-      routes: ['/', '/carte', '/a-propos', '/contact', '/mentions-legales', '/confidentialite', '/sitemap.xml'],
+      routes: ['/', '/carte', '/a-propos', '/contact', '/mentions-legales', '/confidentialite', '/sitemap.xml', '/panier', '/commande', '/commande/suivi', '/commande/confirmation', '/compte', '/compte/commandes', '/verifier-email'],
       failOnError: false,
     },
   },
@@ -25,6 +25,7 @@ export default defineNuxtConfig({
     '/panier': { ssr: false },
     '/commande/**': { ssr: false },
     '/reset-password/**': { ssr: false },
+    '/verifier-email': { ssr: false },
     // Ancienne adresse de paiement (le montant n'est plus dans l'URL).
     '/payment/**': { redirect: '/commande' },
   },

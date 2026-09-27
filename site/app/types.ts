@@ -30,6 +30,8 @@ export interface User {
   name: string | null
   roles: string[]
   picture?: string | null
+  phone?: string | null
+  emailVerified?: boolean
 }
 
 export interface CartLine {
@@ -63,4 +65,6 @@ export interface RestaurantStatus {
   prepMinutes: number
   slots: string[]
   payment: { online: boolean; onsite: boolean }
+  /** Adresse e-mail confirmée exigée pour commander. */
+  emailVerification?: boolean
 }

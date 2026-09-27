@@ -36,7 +36,7 @@ async function submit() {
     const target = redirect.value
     loginOpen.value = false
     redirect.value = null
-    useToast().success(mode.value === 'login' ? 'Vous êtes connecté.' : 'Compte créé, bienvenue !')
+    useToast().success(mode.value === 'login' ? 'Vous êtes connecté.' : `Compte créé. Confirmez votre adresse avec le lien envoyé à ${form.email}.`)
     if (target) navigateTo(target)
   } catch (e) {
     const status = (e as { status?: number }).status

@@ -35,6 +35,12 @@ export function useAuth() {
     await login(payload.email, payload.plainPassword)
   }
 
+  /** Renvoie le lien de confirmation de l'adresse e-mail. */
+  async function resendVerification() {
+    const res = await api<{ message: string }>('/user/verify-email/resend', { method: 'POST' })
+    useToast().success(res.message)
+  }
+
   function logout() {
     token.value = null
     user.value = null
@@ -42,5 +48,5 @@ export function useAuth() {
     navigateTo('/')
   }
 
-  return { user, token, loggedIn, isAdmin, loginOpen, fetchUser, login, register, logout }
+  return { user, token, loggedIn, isAdmin, loginOpen, fetchUser, login, register, resendVerification, logout }
 }
